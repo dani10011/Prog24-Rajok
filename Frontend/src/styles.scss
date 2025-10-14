@@ -1,1 +1,167 @@
 /* You can add global styles to this file, and also import other style files */
+
+// Import PrimeNG styles
+@import "primeng/resources/primeng.min.css";
+@import "primeicons/primeicons.css";
+
+// Import custom theme system
+@import "styles/variables";
+@import "styles/themes";
+
+// Global Reset and Base Styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// PrimeNG Component Overrides
+.p-component {
+  font-family: $font-family-base;
+}
+
+// Custom Input Styles
+.p-inputtext {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--input-text);
+  
+  &:enabled:focus {
+    border-color: var(--input-border-focus);
+    box-shadow: 0 0 0 0.2rem rgba(3, 87, 175, 0.25);
+  }
+  
+  &::placeholder {
+    color: var(--input-placeholder);
+  }
+}
+
+// Custom Button Styles
+.p-button {
+  background: var(--button-primary-bg);
+  border-color: var(--button-primary-border);
+  color: var(--button-primary-text);
+  transition: all $transition-base;
+  
+  &:enabled:hover {
+    background: var(--button-primary-hover-bg);
+    border-color: var(--button-primary-hover-border);
+  }
+  
+  &:enabled:active {
+    background: var(--button-primary-hover-bg);
+    border-color: var(--button-primary-hover-border);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(3, 87, 175, 0.25);
+  }
+}
+
+// Custom Card Styles
+.p-card {
+  background: var(--surface-card);
+  color: var(--text-color);
+  box-shadow: var(--shadow-lg);
+  border-radius: $border-radius-lg;
+  
+  .p-card-title {
+    color: var(--text-color);
+  }
+  
+  .p-card-subtitle {
+    color: var(--text-color-secondary);
+  }
+  
+  .p-card-content {
+    color: var(--text-color);
+  }
+}
+
+// Custom Message Styles
+.p-message {
+  &.p-message-error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--error-color);
+    color: var(--error-color);
+  }
+  
+  &.p-message-success {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--success-color);
+    color: var(--success-color);
+  }
+  
+  &.p-message-info {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: var(--info-color);
+    color: var(--info-color);
+  }
+  
+  &.p-message-warn {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+  }
+}
+
+// Utility Classes
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: $spacing-xs; }
+.mt-2 { margin-top: $spacing-sm; }
+.mt-3 { margin-top: $spacing-md; }
+.mt-4 { margin-top: $spacing-lg; }
+.mt-5 { margin-top: $spacing-xl; }
+
+.mb-1 { margin-bottom: $spacing-xs; }
+.mb-2 { margin-bottom: $spacing-sm; }
+.mb-3 { margin-bottom: $spacing-md; }
+.mb-4 { margin-bottom: $spacing-lg; }
+.mb-5 { margin-bottom: $spacing-xl; }
+
+.w-full {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: $spacing-sm;
+}
+
+.gap-3 {
+  gap: $spacing-md;
+}
+
+.gap-4 {
+  gap: $spacing-lg;
+}

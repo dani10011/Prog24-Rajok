@@ -1,0 +1,123 @@
+@import 'variables';
+
+// Light Theme (Default)
+.theme-light {
+  // Primary Colors
+  --primary-color: #{$primary-blue};
+  --primary-color-text: #{$white};
+  --secondary-color: #{$secondary-blue};
+  --secondary-color-text: #{$white};
+  
+  // Surface Colors
+  --surface-ground: #{$gray-50};
+  --surface-section: #{$white};
+  --surface-card: #{$white};
+  --surface-overlay: #{$white};
+  --surface-border: #{$gray-200};
+  --surface-hover: #{$gray-100};
+  
+  // Text Colors
+  --text-color: #{$gray-900};
+  --text-color-secondary: #{$gray-600};
+  --text-color-muted: #{$gray-500};
+  
+  // Accent Colors
+  --accent-color: #{$accent};
+  --accent-color-text: #{$white};
+  
+  // Theme Specific Colors
+  --light-blue: #{$light-blue};
+  --sky-blue: #{$sky-blue};
+  --pale-blue: #{$pale-blue};
+  
+  // Semantic Colors
+  --success-color: #{$success};
+  --warning-color: #{$warning};
+  --error-color: #{$error};
+  --info-color: #{$info};
+  
+  // Input Colors
+  --input-bg: #{$white};
+  --input-border: #{$gray-300};
+  --input-border-focus: #{$primary-blue};
+  --input-text: #{$gray-900};
+  --input-placeholder: #{$gray-400};
+  
+  // Button Colors
+  --button-primary-bg: #{$primary-blue};
+  --button-primary-border: #{$primary-blue};
+  --button-primary-text: #{$white};
+  --button-primary-hover-bg: #{$secondary-blue};
+  --button-primary-hover-border: #{$secondary-blue};
+  
+  // Shadow
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+  --shadow-xl: #{$shadow-xl};
+}
+
+// Dark Theme
+.theme-dark {
+  // Primary Colors
+  --primary-color: #{$primary-blue-dark};
+  --primary-color-text: #{$white};
+  --secondary-color: #{$secondary-blue-dark};
+  --secondary-color-text: #{$gray-900};
+  
+  // Surface Colors
+  --surface-ground: #{$gray-900};
+  --surface-section: #{$gray-800};
+  --surface-card: #{$gray-800};
+  --surface-overlay: #{$gray-800};
+  --surface-border: #{$gray-700};
+  --surface-hover: #{$gray-700};
+  
+  // Text Colors
+  --text-color: #{$gray-50};
+  --text-color-secondary: #{$gray-300};
+  --text-color-muted: #{$gray-400};
+  
+  // Accent Colors
+  --accent-color: #{$accent};
+  --accent-color-text: #{$white};
+  
+  // Theme Specific Colors
+  --light-blue: #{$light-blue-dark};
+  --sky-blue: #{$sky-blue};
+  --pale-blue: #{$pale-blue};
+  
+  // Semantic Colors
+  --success-color: #{$success};
+  --warning-color: #{$warning};
+  --error-color: #{$error};
+  --info-color: #{$info};
+  
+  // Input Colors
+  --input-bg: #{$gray-700};
+  --input-border: #{$gray-600};
+  --input-border-focus: #{$primary-blue-dark};
+  --input-text: #{$gray-50};
+  --input-placeholder: #{$gray-400};
+  
+  // Button Colors
+  --button-primary-bg: #{$primary-blue-dark};
+  --button-primary-border: #{$primary-blue-dark};
+  --button-primary-text: #{$white};
+  --button-primary-hover-bg: #{$secondary-blue-dark};
+  --button-primary-hover-border: #{$secondary-blue-dark};
+  
+  // Shadow (darker shadows for dark theme)
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+// Apply theme to body
+body {
+  background-color: var(--surface-ground);
+  color: var(--text-color);
+  font-family: $font-family-base;
+  transition: background-color $transition-base, color $transition-base;
+}

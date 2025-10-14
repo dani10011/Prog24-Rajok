@@ -1,5 +1,21 @@
 @import '../dashboard/dashboard.component.scss';
 
+// Remove spacing between navbar and content
+.dashboard-content {
+  padding-top: 0 !important;
+}
+
+// Remove white space from welcome card
+.welcome-card {
+  ::ng-deep .p-card-body {
+    padding: 0 !important;
+  }
+
+  ::ng-deep .p-card-content {
+    display: none !important;
+  }
+}
+
 // Teacher-specific styles
 ::ng-deep .teacher-avatar {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;

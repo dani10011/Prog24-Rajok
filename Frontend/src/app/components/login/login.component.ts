@@ -29,15 +29,16 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Redirect if already logged in
     if (this.authService.isAuthenticated) {
-      this.router.navigate([this.returnUrl]);
+      const dashboardRoute = this.authService.getDashboardRoute();
+      this.router.navigate([dashboardRoute]);
       return;
     }
 
     // Initialize form
     this.initializeForm();
 
-    // Get return url from route parameters or default to '/dashboard'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    // Get return url from route parameters or default to role-based dashboard
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
   }
 
   ngOnDestroy(): void {
@@ -87,8 +88,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.success) {
             console.log('Login successful:', response.message);
-            // Navigate to return url or dashboard
-            this.router.navigate([this.returnUrl]);
+            // Navigate to return url or role-based dashboard
+            const targetRoute = this.returnUrl || this.authService.getDashboardRoute();
+            this.router.navigate([targetRoute]);
           } else {
             this.errorMessage = response.message || 'Login failed. Please try again.';
             this.loading = false;

@@ -60,7 +60,8 @@ export class AuthService {
         username: credentials.email.split('@')[0],
         firstName: 'Demo',
         lastName: 'User',
-        role: 'user',
+        role: 'admin',
+        role_id: 3, // 1: Admin, 2: Teacher, 3: Student
         createdAt: new Date(),
         lastLogin: new Date()
       },
@@ -171,6 +172,58 @@ export class AuthService {
       const updatedUser = { ...currentUser, ...user };
       localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
       this.currentUserSubject.next(updatedUser);
+    }
+  }
+
+  /**
+   * Get user role ID
+   */
+  getUserRoleId(): number | null {
+    return this.currentUserValue?.role_id ?? null;
+  }
+
+  /**
+   * Check if user is admin (role_id = 1)
+   */
+  isAdmin(): boolean {
+    return this.getUserRoleId() === 1;
+  }
+
+  /**
+   * Check if user is teacher (role_id = 2)
+   */
+  isTeacher(): boolean {
+    return this.getUserRoleId() === 2;
+  }
+
+  /**
+   * Check if user is student (role_id = 3)
+   */
+  isStudent(): boolean {
+    return this.getUserRoleId() === 3;
+  }
+
+  /**
+   * Check if user has specific role
+   */
+  hasRole(roleId: number): boolean {
+    return this.getUserRoleId() === roleId;
+  }
+
+  /**
+   * Get dashboard route based on user role
+   */
+  getDashboardRoute(): string {
+    const roleId = this.getUserRoleId();
+    switch (roleId) {
+      case 1:
+        return '/admin-dashboard';
+      case 2:
+        return '/teacher-dashboard';
+      case 3:
+        return '/student-dashboard';
+      default:
+        return '/login';
     }
   }
 }

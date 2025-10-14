@@ -27,40 +27,75 @@
 }
 
 .header-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: $spacing-lg $spacing-xl;
+  padding: 0 $spacing-xl;
+  height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: $spacing-md;
 }
 
-.header-left {
+.header-brand {
   display: flex;
   align-items: center;
   gap: $spacing-md;
+
+  .brand-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+  }
+
+  .brand-text {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: -0.02em;
+  }
 }
 
-.header-icon {
-  font-size: $font-size-2xl;
-  color: var(--primary-color);
-}
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
 
-.header-title {
-  margin: 0;
-  font-size: $font-size-2xl;
-  font-weight: 700;
-  color: var(--text-color);
-}
+  .user-name {
+    font-size: $font-size-base;
+    font-weight: 500;
+    color: var(--text-color);
+  }
 
-.header-right {
-  ::ng-deep .p-button {
-    transition: all $transition-base;
+  .logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.2rem;
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      background: var(--surface-hover);
+      color: var(--primary-color);
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      display: flex;
     }
   }
 }
@@ -334,20 +369,31 @@
   }
 
   .header-content {
-    padding: $spacing-md;
-    flex-direction: column;
-    align-items: stretch;
+    padding: 0 $spacing-md;
+    height: 56px;
   }
 
-  .header-title {
-    font-size: $font-size-xl;
+  .header-brand {
+    .brand-icon {
+      font-size: 1.25rem;
+    }
+
+    .brand-text {
+      font-size: $font-size-base;
+    }
   }
 
-  .header-right {
-    width: 100%;
+  .header-user {
+    gap: $spacing-md;
 
-    ::ng-deep .p-button {
-      width: 100%;
+    .user-name {
+      font-size: $font-size-sm;
+    }
+
+    .logout-btn {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
     }
   }
 
@@ -377,12 +423,33 @@
 }
 
 @media (max-width: 576px) {
-  .header-icon {
-    font-size: $font-size-xl;
+  .header-content {
+    padding: 0 $spacing-sm;
+    height: 52px;
   }
 
-  .header-title {
-    font-size: $font-size-lg;
+  .header-brand {
+    .brand-icon {
+      font-size: 1.1rem;
+    }
+
+    .brand-text {
+      font-size: $font-size-sm;
+    }
+  }
+
+  .header-user {
+    gap: $spacing-sm;
+
+    .user-name {
+      display: none;
+    }
+
+    .logout-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 0.9rem;
+    }
   }
 
   .user-avatar {

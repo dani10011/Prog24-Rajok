@@ -1,0 +1,168 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-brand">
+        <i class="pi pi-th-large brand-icon"></i>
+        <span class="brand-text">Irányítópult</span>
+      </div>
+      <div class="header-user">
+        <span class="user-name">{{ currentUser?.firstName || currentUser?.username }}</span>
+        <button class="logout-btn" (click)="onLogout()" [disabled]="loading">
+          <i class="pi pi-sign-out"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <div class="content-wrapper">
+      <!-- Welcome Card -->
+      <p-card class="welcome-card">
+        <ng-template pTemplate="header">
+          <div class="welcome-header">
+            <p-avatar
+              [label]="getUserInitials()"
+              size="xlarge"
+              shape="circle"
+              styleClass="teacher-avatar"
+              [style]="{'width': '80px', 'height': '80px', 'font-size': '2rem'}">
+            </p-avatar>
+            <div class="welcome-text">
+              <h2>Üdvözöljük, {{ currentUser?.firstName || currentUser?.username }}!</h2>
+              <p>Tanári jogosultsággal bejelentkezve</p>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="content">
+          <div class="welcome-content">
+            <p-message
+              severity="success"
+              text="Tanárként megtekintheti az órarendjét, szobákat foglalhat és kezelheti az óráit."
+              styleClass="w-full">
+            </p-message>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- Teacher Actions Card -->
+      <p-card class="actions-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <i class="pi pi-calendar card-icon"></i>
+            <h3>Tanári Műveletek</h3>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="content">
+          <div class="actions-grid">
+            <div class="action-item" pRipple>
+              <i class="pi pi-calendar action-icon"></i>
+              <h4>Órarend</h4>
+              <p>Személyes órarend megtekintése</p>
+            </div>
+
+            <div class="action-item" pRipple>
+              <i class="pi pi-building action-icon"></i>
+              <h4>Szobafoglalás</h4>
+              <p>Tanterem foglalása órához</p>
+            </div>
+
+            <div class="action-item" pRipple>
+              <i class="pi pi-users action-icon"></i>
+              <h4>Diákok</h4>
+              <p>Diákok listájának megtekintése</p>
+            </div>
+
+            <div class="action-item" pRipple>
+              <i class="pi pi-book action-icon"></i>
+              <h4>Tantárgyaim</h4>
+              <p>Tanított tantárgyak kezelése</p>
+            </div>
+
+            <div class="action-item" pRipple>
+              <i class="pi pi-file action-icon"></i>
+              <h4>Anyagok feltöltése</h4>
+              <p>Tananyagok és dokumentumok</p>
+            </div>
+
+            <div class="action-item" pRipple>
+              <i class="pi pi-chart-line action-icon"></i>
+              <h4>Statisztikák</h4>
+              <p>Órák és jelenlét statisztikák</p>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- User Info Card -->
+      <p-card class="info-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <i class="pi pi-user card-icon"></i>
+            <h3>Felhasználói információk</h3>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="content">
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-envelope"></i>
+                Email:
+              </span>
+              <span class="info-value">{{ currentUser?.email }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-user"></i>
+                Felhasználónév:
+              </span>
+              <span class="info-value">{{ currentUser?.username }}</span>
+            </div>
+
+            <div class="info-item" *ngIf="currentUser?.firstName">
+              <span class="info-label">
+                <i class="pi pi-id-card"></i>
+                Teljes név:
+              </span>
+              <span class="info-value">
+                {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+              </span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-shield"></i>
+                Szerepkör:
+              </span>
+              <span class="info-value">
+                Tanár
+                <p-badge [value]="currentUser?.role_id?.toString()" severity="warning"></p-badge>
+              </span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-calendar"></i>
+                Regisztráció dátuma:
+              </span>
+              <span class="info-value">{{ getFormattedDate(currentUser?.createdAt) }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-clock"></i>
+                Utolsó bejelentkezés:
+              </span>
+              <span class="info-value">{{ getFormattedDate(currentUser?.lastLogin) }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+</div>

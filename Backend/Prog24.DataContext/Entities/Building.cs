@@ -7,14 +7,11 @@ using System.Threading.Tasks;
 
 namespace Prog24.DataContext.Entities
 {
-    public class Faculty
+    public class Building
     {
         [Key]
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-
-        public ICollection<Department> Departments { get; set; } = new List<Department>();
-        public ICollection<Major> Majors { get; set; } = new List<Major>();
-        public ICollection<Instructor> Instructors { get; set; } = new List<Instructor>();
+        public ICollection<Room> Rooms { get; set; } = new List<Room>();
     }
 }

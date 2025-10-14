@@ -1,4 +1,4 @@
-namespace Backend
+namespace Prog24.WebAPI
 {
     public class WeatherForecast
     {

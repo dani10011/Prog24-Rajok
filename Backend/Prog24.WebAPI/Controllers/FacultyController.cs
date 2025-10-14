@@ -5,7 +5,7 @@ using Prog24.Services.Services.Interfaces;
 namespace Prog24.WebAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]/[action]")]
     public class FacultyController : Controller
     {
         private readonly IFacultyService _facultyService;

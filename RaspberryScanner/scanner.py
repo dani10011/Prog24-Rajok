@@ -5,7 +5,7 @@ import adafruit_pn532.i2c
 import requests
 
 
-API_URL = "http://192.168.181.113:5000/weatherforecast"
+API_URL = "http://192.168.181.113:5000/faculty"
 
 i2c = busio.I2C(board.SCL, board.SDA)
 pn532 = adafruit_pn532.i2c.PN532_I2C(i2c, debug=False)

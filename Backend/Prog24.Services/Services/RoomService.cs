@@ -1,0 +1,27 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Prog24.DataContext;
+using Prog24.DataContext.Entities;
+using Prog24.Services.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Prog24.Services.Services
+{
+    public class RoomService : IRoomService
+    {
+        private readonly AppDbContext _dbContext;
+        public RoomService(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<List<Room>> GetRooms()
+        {
+            var result = await _dbContext.Room.ToListAsync();
+            return result;
+        }
+    }
+}

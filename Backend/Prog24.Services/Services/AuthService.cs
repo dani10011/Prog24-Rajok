@@ -59,6 +59,7 @@ namespace Prog24.Services.Services
 
                     return new LoginResponse()
                     {
+                        UserId = user.Id,
                         Token = new JwtSecurityTokenHandler().WriteToken(token)
                     };
                 }

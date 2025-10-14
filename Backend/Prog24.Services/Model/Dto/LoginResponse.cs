@@ -8,6 +8,7 @@ namespace Prog24.Services.Model.Dto
 {
     public class LoginResponse
     {
+        public int UserId { get; set; }
         public string Token { get; set; }
     }
 }

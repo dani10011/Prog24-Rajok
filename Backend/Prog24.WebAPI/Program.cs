@@ -53,6 +53,7 @@ namespace Prog24.WebAPI
             builder.Services.AddScoped<IStudentService, StudentService>();
             builder.Services.AddScoped<ISubjectService, SubjectService>();
             builder.Services.AddScoped<ISubjectStudentService, SubjectStudentService>();
+            builder.Services.AddScoped<ITimetableService, TimetableService>();
             builder.Services.AddScoped<IUserService, UserService>();
 
             // Add CORS policy

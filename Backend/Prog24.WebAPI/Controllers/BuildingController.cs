@@ -5,7 +5,7 @@ using Prog24.Services.Services.Interfaces;
 namespace Prog24.WebAPI.Controllers
 {
 
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]/[action]")]
     public class BuildingController : ControllerBase

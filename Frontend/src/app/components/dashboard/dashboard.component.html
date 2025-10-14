@@ -1,0 +1,169 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <i class="pi pi-home header-icon"></i>
+        <h1 class="header-title">Irányítópult</h1>
+      </div>
+      <div class="header-right">
+        <p-button 
+          label="Kijelentkezés"
+          icon="pi pi-sign-out"
+          (onClick)="onLogout()"
+          [loading]="loading"
+          severity="danger"
+          [outlined]="true">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <div class="content-wrapper">
+      <!-- Welcome Card -->
+      <p-card class="welcome-card">
+        <ng-template pTemplate="header">
+          <div class="welcome-header">
+            <div class="user-avatar">
+              {{ getUserInitials() }}
+            </div>
+            <div class="welcome-text">
+              <h2>Üdvözöljük, {{ currentUser?.firstName || currentUser?.username }}!</h2>
+              <p>Sikeresen bejelentkezett a rendszerbe</p>
+            </div>
+          </div>
+        </ng-template>
+        
+        <ng-template pTemplate="content">
+          <div class="welcome-content">
+            <p-message 
+              severity="success" 
+              text="A bejelentkezés sikeres volt. Ez egy védett oldal, amely csak bejelentkezett felhasználók számára érhető el."
+              styleClass="w-full">
+            </p-message>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- User Info Card -->
+      <p-card class="info-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <i class="pi pi-user card-icon"></i>
+            <h3>Felhasználói információk</h3>
+          </div>
+        </ng-template>
+        
+        <ng-template pTemplate="content">
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-envelope"></i>
+                Email:
+              </span>
+              <span class="info-value">{{ currentUser?.email }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-user"></i>
+                Felhasználónév:
+              </span>
+              <span class="info-value">{{ currentUser?.username }}</span>
+            </div>
+
+            <div class="info-item" *ngIf="currentUser?.firstName">
+              <span class="info-label">
+                <i class="pi pi-id-card"></i>
+                Teljes név:
+              </span>
+              <span class="info-value">
+                {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+              </span>
+            </div>
+
+            <div class="info-item" *ngIf="currentUser?.role">
+              <span class="info-label">
+                <i class="pi pi-shield"></i>
+                Szerepkör:
+              </span>
+              <span class="info-value">{{ currentUser?.role }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-calendar"></i>
+                Regisztráció dátuma:
+              </span>
+              <span class="info-value">{{ getFormattedDate(currentUser?.createdAt) }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">
+                <i class="pi pi-clock"></i>
+                Utolsó bejelentkezés:
+              </span>
+              <span class="info-value">{{ getFormattedDate(currentUser?.lastLogin) }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- Quick Actions Card -->
+      <p-card class="actions-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <i class="pi pi-bolt card-icon"></i>
+            <h3>Gyors műveletek</h3>
+          </div>
+        </ng-template>
+        
+        <ng-template pTemplate="content">
+          <div class="actions-grid">
+            <div class="action-item">
+              <i class="pi pi-cog action-icon"></i>
+              <h4>Beállítások</h4>
+              <p>Fiók beállítások kezelése</p>
+            </div>
+
+            <div class="action-item">
+              <i class="pi pi-bell action-icon"></i>
+              <h4>Értesítések</h4>
+              <p>Értesítések megtekintése</p>
+            </div>
+
+            <div class="action-item">
+              <i class="pi pi-chart-line action-icon"></i>
+              <h4>Statisztikák</h4>
+              <p>Aktivitás megtekintése</p>
+            </div>
+
+            <div class="action-item">
+              <i class="pi pi-question-circle action-icon"></i>
+              <h4>Súgó</h4>
+              <p>Dokumentáció és támogatás</p>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- Info Message -->
+      <p-card class="demo-card">
+        <ng-template pTemplate="content">
+          <div class="demo-content">
+            <i class="pi pi-info-circle demo-icon"></i>
+            <div class="demo-text">
+              <strong>Demo alkalmazás</strong>
+              <p>
+                Ez egy demonstrációs irányítópult, amely bemutatja az AuthGuard működését.
+                Az oldal csak bejelentkezett felhasználók számára érhető el.
+              </p>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+<div class="login-container">
+  <div class="login-wrapper">
+    <p-card class="login-card">
+      <!-- Header -->
+      <ng-template pTemplate="header">
+        <div class="login-header">
+          <i class="pi pi-lock login-icon"></i>
+          <h2 class="login-title">Bejelentkezés</h2>
+          <p class="login-subtitle">Adja meg bejelentkezési adatait</p>
+        </div>
+      </ng-template>
+
+      <!-- Content -->
+      <ng-template pTemplate="content">
+        <!-- Error Message -->
+        <p-message 
+          *ngIf="errorMessage" 
+          severity="error" 
+          [text]="errorMessage"
+          styleClass="w-full mb-3"
+          (onClose)="clearError()">
+        </p-message>
+
+        <!-- Login Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Email Field -->
+          <div class="form-field">
+            <label for="email" class="form-label">
+              Email cím <span class="required">*</span>
+            </label>
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-envelope"></i>
+              <input 
+                type="email" 
+                id="email"
+                pInputText 
+                formControlName="email"
+                placeholder="pelda@email.com"
+                class="w-full"
+                [class.p-invalid]="hasError('email')"
+                autocomplete="email"
+              />
+            </span>
+            <small 
+              *ngIf="hasError('email')" 
+              class="p-error">
+              {{ getErrorMessage('email') }}
+            </small>
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-field">
+            <label for="password" class="form-label">
+              Jelszó <span class="required">*</span>
+            </label>
+            <div class="password-wrapper">
+              <span class="p-input-icon-left w-full">
+                <i class="pi pi-lock"></i>
+                <p-password 
+                  id="password"
+                  formControlName="password"
+                  placeholder="Adja meg jelszavát"
+                  [toggleMask]="true"
+                  [feedback]="false"
+                  [class.p-invalid]="hasError('password')"
+                  autocomplete="current-password"
+                  inputStyleClass="w-full">
+                </p-password>
+              </span>
+            </div>
+            <small 
+              *ngIf="hasError('password')" 
+              class="p-error">
+              {{ getErrorMessage('password') }}
+            </small>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <p-button 
+              type="submit"
+              label="Bejelentkezés"
+              icon="pi pi-sign-in"
+              [loading]="loading"
+              [disabled]="loading"
+              styleClass="w-full">
+            </p-button>
+          </div>
+
+        </form>
+      </ng-template>
+    </p-card>
+
+    <!-- Demo Credentials Info -->
+    <div class="demo-info">
+      <p-card>
+        <ng-template pTemplate="content">
+          <div class="demo-content">
+            <i class="pi pi-info-circle demo-icon"></i>
+            <div class="demo-text">
+              <strong>Demo bejelentkezés:</strong>
+              <p>Bármilyen email és jelszó (min. 6 karakter) használható</p>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+</div>

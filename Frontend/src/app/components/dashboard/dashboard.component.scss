@@ -1,0 +1,401 @@
+@import '../../../styles/variables';
+
+.dashboard-container {
+  min-height: 100vh;
+  background: var(--surface-ground);
+}
+
+.dashboard-header {
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: slideDown 0.3s ease-out;
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-xl;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.header-icon {
+  font-size: $font-size-2xl;
+  color: var(--primary-color);
+}
+
+.header-title {
+  margin: 0;
+  font-size: $font-size-2xl;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.header-right {
+  ::ng-deep .p-button {
+    transition: all $transition-base;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+  }
+}
+
+.dashboard-content {
+  padding: $spacing-xl;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+// Welcome Card
+.welcome-card {
+  animation: fadeInUp 0.5s ease-out;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  ::ng-deep .p-card-body {
+    padding: 0;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: $spacing-xl;
+    padding-top: 0;
+  }
+}
+
+.welcome-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-2xl;
+  font-weight: 700;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  animation: avatarPulse 2s ease-in-out infinite;
+
+  @keyframes avatarPulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.welcome-text {
+  h2 {
+    margin: 0;
+    font-size: $font-size-3xl;
+    font-weight: 700;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    margin: 0;
+    font-size: $font-size-base;
+    opacity: 0.9;
+  }
+}
+
+.welcome-content {
+  ::ng-deep .p-message {
+    margin: 0;
+  }
+}
+
+// Info Card
+.info-card {
+  animation: fadeInUp 0.5s ease-out 0.1s both;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-lg $spacing-xl;
+  background: var(--surface-section);
+  border-bottom: 1px solid var(--surface-border);
+
+  .card-icon {
+    font-size: $font-size-xl;
+    color: var(--primary-color);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: var(--surface-section);
+  border-radius: $border-radius-md;
+  border: 1px solid var(--surface-border);
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+  }
+}
+
+.info-label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+.info-value {
+  font-size: $font-size-base;
+  color: var(--text-color);
+  font-weight: 500;
+  padding-left: calc(#{$font-size-sm} + #{$spacing-sm});
+}
+
+// Actions Card
+.actions-card {
+  animation: fadeInUp 0.5s ease-out 0.2s both;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: $spacing-xl;
+  background: var(--surface-section);
+  border-radius: $border-radius-lg;
+  border: 2px solid var(--surface-border);
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+
+    .action-icon {
+      transform: scale(1.1);
+      color: var(--primary-color);
+    }
+  }
+}
+
+.action-icon {
+  font-size: 3rem;
+  color: var(--secondary-color);
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+}
+
+.action-item h4 {
+  margin: 0;
+  margin-bottom: $spacing-sm;
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.action-item p {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: var(--text-color-secondary);
+}
+
+// Demo Card
+.demo-card {
+  animation: fadeInUp 0.5s ease-out 0.3s both;
+
+  ::ng-deep .p-card-body {
+    padding: $spacing-lg;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
+}
+
+.demo-content {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+}
+
+.demo-icon {
+  font-size: $font-size-2xl;
+  color: var(--info-color);
+  flex-shrink: 0;
+}
+
+.demo-text {
+  flex: 1;
+
+  strong {
+    display: block;
+    color: var(--text-color);
+    margin-bottom: $spacing-sm;
+    font-size: $font-size-base;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: $font-size-sm;
+    line-height: 1.6;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: $spacing-md;
+  }
+
+  .header-content {
+    padding: $spacing-md;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-title {
+    font-size: $font-size-xl;
+  }
+
+  .header-right {
+    width: 100%;
+
+    ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+
+  .welcome-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .welcome-text h2 {
+    font-size: $font-size-2xl;
+  }
+
+  .info-grid,
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+
+  .card-header {
+    padding: $spacing-md;
+  }
+
+  .info-grid,
+  .actions-grid {
+    padding: $spacing-md;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-icon {
+    font-size: $font-size-xl;
+  }
+
+  .header-title {
+    font-size: $font-size-lg;
+  }
+
+  .user-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: $font-size-xl;
+  }
+
+  .welcome-text h2 {
+    font-size: $font-size-xl;
+  }
+
+  .action-icon {
+    font-size: 2.5rem;
+  }
+}

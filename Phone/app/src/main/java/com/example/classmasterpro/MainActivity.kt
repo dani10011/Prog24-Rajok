@@ -1,47 +1,39 @@
 package com.example.classmasterpro
 
+import android.nfc.NfcAdapter
+import android.nfc.NfcManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.classmasterpro.navigation.AppNavigation
 import com.example.classmasterpro.ui.theme.ClassMasterProTheme
 
+/**
+ * Main Activity for ClassMaster Pro
+ * An NFC-based class entry system for schools
+ */
 class MainActivity : ComponentActivity() {
+    private lateinit var nfcAdapter: NfcAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Initialize NFC
+        val nfcManager = getSystemService(NFC_SERVICE) as NfcManager
+        nfcAdapter = nfcManager.defaultAdapter
+
         setContent {
-            ClassMasterProTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            ClassMasterProTheme(dynamicColor = false) {
+                AppNavigation(
+                    nfcAdapter = nfcAdapter,
+                    onShowToast = { message ->
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ClassMasterProTheme {
-        Greeting("Android")
     }
 }

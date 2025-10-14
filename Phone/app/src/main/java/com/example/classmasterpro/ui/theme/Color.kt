@@ -2,10 +2,15 @@ package com.example.classmasterpro.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Custom Color Scheme - Blue Theme
+val PrimaryBlue = Color(0xFF0357AF)
+val SecondaryBlue = Color(0xFF0180CC)
+val LightBlue = Color(0xFF74CEF7)
+val SkyBlue = Color(0xFF9BE8F0)
+val PaleBlue = Color(0xFFE6FBFA)
+val Accent = Color(0xFFE4815A)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Dark theme variants
+val PrimaryBlueDark = Color(0xFF0180CC)
+val SecondaryBlueDark = Color(0xFF74CEF7)
+val LightBlueDark = Color(0xFF9BE8F0)

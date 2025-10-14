@@ -10,5 +10,6 @@ namespace Prog24.Services.Services.Interfaces
     public interface IAuthService
     {
         Task<LoginResponse> Login(LoginRequest loginRequest);
+        Task Register(RegisterRequest registerRequest);
     }
 }

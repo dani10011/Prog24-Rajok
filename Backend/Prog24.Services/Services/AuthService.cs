@@ -75,6 +75,21 @@ namespace Prog24.Services.Services
             
         }
 
+        public async Task Register(RegisterRequest registerRequest)
+        {
+            User user = new User();
+
+            user.Email = registerRequest.Email;
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+            user.Password_Hash = passwordHash;
+            user.Role_Id = registerRequest.RoleId;
+            user.Name = registerRequest.Name;
+            user.Neptun_Code = registerRequest.NeptunCode;
+
+            _appDbContext.User.Add(user);
+            await _appDbContext.SaveChangesAsync();
+        }
+
         private JwtSecurityToken GenerateJwtToken(List<Claim> authClaims)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings")["JwtKey"]));

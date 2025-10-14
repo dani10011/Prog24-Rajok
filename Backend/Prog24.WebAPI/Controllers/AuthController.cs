@@ -20,5 +20,12 @@ namespace Prog24.WebAPI.Controllers
             var response = await _authService.Login(request);
             return Ok(response);
         }
+
+        [HttpPost]
+        public async Task Register([FromBody] RegisterRequest request)
+        {
+            await _authService.Register(request);
+            
+        }
     }
 }

@@ -26,11 +26,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.ComponentActivity
+import com.example.classmasterpro.R
 import com.example.classmasterpro.ui.theme.*
+import com.example.classmasterpro.utils.ApiHelper
+import com.example.classmasterpro.utils.LanguageHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 @Composable
 fun LoginScreen(
@@ -39,7 +45,8 @@ fun LoginScreen(
     isDarkMode: Boolean,
     onToggleDarkMode: () -> Unit
 ) {
-    var username by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
@@ -59,31 +66,48 @@ fun LoginScreen(
         label = "logo_scale"
     )
 
-    // Hardcoded credentials
-    val validUsername = "admin"
-    val validPassword = "password"
-
     fun handleLogin() {
         errorMessage = ""
-        if (username.isBlank() || password.isBlank()) {
-            errorMessage = "Please fill in all fields"
-            onShowToast("Please fill in all fields")
+
+        // Validate input fields
+        if (email.isBlank() || password.isBlank()) {
+            errorMessage = context.getString(R.string.error_empty_fields)
+            onShowToast(context.getString(R.string.error_empty_fields))
+            return
+        }
+
+        // Basic email validation
+        if (!email.contains("@")) {
+            errorMessage = context.getString(R.string.error_invalid_email)
+            onShowToast(context.getString(R.string.error_invalid_email))
             return
         }
 
         isLoading = true
         scope.launch {
-            // Simulate network delay
-            delay(1000)
+            try {
+                // Call real authentication API
+                val response = ApiHelper.login(email, password)
 
-            if (username == validUsername && password == validPassword) {
+                if (response.success && !response.token.isNullOrEmpty()) {
+                    isLoading = false
+                    onShowToast(context.getString(R.string.success_login))
+                    // TODO: Store token in SharedPreferences for future authenticated requests
+                    // For now, just proceed to next screen
+                    onLoginSuccess()
+                } else {
+                    isLoading = false
+                    errorMessage = response.message ?: context.getString(R.string.error_invalid_credentials)
+                    onShowToast(errorMessage)
+                }
+            } catch (e: IOException) {
                 isLoading = false
-                onShowToast("Login successful!")
-                onLoginSuccess()
-            } else {
+                errorMessage = context.getString(R.string.error_network_failure)
+                onShowToast("${context.getString(R.string.error_network_failure)}: ${e.message}")
+            } catch (e: Exception) {
                 isLoading = false
-                errorMessage = "Invalid username or password"
-                onShowToast("Invalid credentials")
+                errorMessage = context.getString(R.string.error_unknown)
+                onShowToast("${context.getString(R.string.error_unknown)}: ${e.message}")
             }
         }
     }
@@ -120,9 +144,34 @@ fun LoginScreen(
         ) {
             Icon(
                 imageVector = if (isDarkMode) Icons.Filled.LightMode else Icons.Filled.DarkMode,
-                contentDescription = "Toggle Dark Mode",
+                contentDescription = context.getString(R.string.toggle_dark_mode),
                 tint = if (isDarkMode) SkyBlue else PaleBlue,
                 modifier = Modifier.size(28.dp)
+            )
+        }
+
+        // Language Toggle (Top Right)
+        TextButton(
+            onClick = {
+                LanguageHelper.toggleLanguage(context)
+                (context as? ComponentActivity)?.recreate()
+            },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Language,
+                contentDescription = context.getString(R.string.change_language),
+                tint = if (isDarkMode) SkyBlue else PaleBlue,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = LanguageHelper.getLanguageDisplayName(LanguageHelper.getLanguage(context)),
+                color = if (isDarkMode) SkyBlue else PaleBlue,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -161,13 +210,13 @@ fun LoginScreen(
 
             // Title
             Text(
-                text = "ClassMaster Pro",
+                text = context.getString(R.string.login_title),
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (isDarkMode) SkyBlue else PaleBlue
             )
             Text(
-                text = "Sign in to continue",
+                text = context.getString(R.string.login_subtitle),
                 fontSize = 16.sp,
                 color = if (isDarkMode) SkyBlue.copy(alpha = 0.8f) else PaleBlue.copy(alpha = 0.8f),
                 modifier = Modifier.padding(top = 8.dp)
@@ -192,25 +241,25 @@ fun LoginScreen(
                         .padding(28.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Username Field
+                    // Email Field
                     OutlinedTextField(
-                        value = username,
+                        value = email,
                         onValueChange = {
-                            username = it
+                            email = it
                             errorMessage = ""
                         },
-                        label = { Text("Username") },
+                        label = { Text(context.getString(R.string.email_label)) },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Filled.Person,
-                                contentDescription = "Username",
+                                imageVector = Icons.Filled.Email,
+                                contentDescription = context.getString(R.string.email_label),
                                 tint = if (isDarkMode) LightBlue else PrimaryBlue
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
+                            keyboardType = KeyboardType.Email,
                             imeAction = ImeAction.Next
                         ),
                         keyboardActions = KeyboardActions(
@@ -237,11 +286,11 @@ fun LoginScreen(
                             password = it
                             errorMessage = ""
                         },
-                        label = { Text("Password") },
+                        label = { Text(context.getString(R.string.password_label)) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Filled.Lock,
-                                contentDescription = "Password",
+                                contentDescription = context.getString(R.string.password_label),
                                 tint = if (isDarkMode) LightBlue else PrimaryBlue
                             )
                         },
@@ -249,7 +298,7 @@ fun LoginScreen(
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
                                     imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                    contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                    contentDescription = if (passwordVisible) context.getString(R.string.password_label) else context.getString(R.string.password_label),
                                     tint = if (isDarkMode) SkyBlue else SecondaryBlue
                                 )
                             }
@@ -325,7 +374,7 @@ fun LoginScreen(
                             )
                         } else {
                             Text(
-                                text = "Sign In",
+                                text = context.getString(R.string.sign_in_button),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -347,18 +396,18 @@ fun LoginScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Demo Credentials",
+                                text = context.getString(R.string.demo_credentials_title),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = SecondaryBlue
                             )
                             Text(
-                                text = "Username: admin",
+                                text = context.getString(R.string.demo_email),
                                 fontSize = 11.sp,
                                 color = SecondaryBlue.copy(alpha = 0.8f)
                             )
                             Text(
-                                text = "Password: password",
+                                text = context.getString(R.string.demo_password),
                                 fontSize = 11.sp,
                                 color = SecondaryBlue.copy(alpha = 0.8f)
                             )
@@ -371,7 +420,7 @@ fun LoginScreen(
 
             // Footer
             Text(
-                text = "Secure access for students and staff",
+                text = context.getString(R.string.login_footer),
                 fontSize = 14.sp,
                 color = if (isDarkMode) SkyBlue.copy(alpha = 0.7f) else PaleBlue.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center

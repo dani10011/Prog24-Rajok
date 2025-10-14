@@ -1,0 +1,44 @@
+<resources>
+    <!-- Alkalmazás Neve -->
+    <string name="app_name">ClassMaster Pro</string>
+
+    <!-- Bejelentkezési Képernyő -->
+    <string name="login_title">ClassMaster Pro</string>
+    <string name="login_subtitle">Jelentkezz be a folytatáshoz</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Jelszó</string>
+    <string name="sign_in_button">Bejelentkezés</string>
+    <string name="demo_credentials_title">Teszt Adatok</string>
+    <string name="demo_email">Használd az iskolai email címed</string>
+    <string name="demo_password">Add meg a jelszavad</string>
+    <string name="login_footer">Biztonságos hozzáférés diákoknak és tanároknak</string>
+
+    <!-- Bejelentkezési Hibák -->
+    <string name="error_empty_fields">Kérlek töltsd ki az összes mezőt</string>
+    <string name="error_invalid_email">Kérlek adj meg érvényes email címet</string>
+    <string name="error_invalid_credentials">Érvénytelen email vagy jelszó</string>
+    <string name="error_network_failure">Hálózati hiba</string>
+    <string name="error_unknown">Hiba történt</string>
+    <string name="success_login">Sikeres bejelentkezés!</string>
+
+    <!-- NFC Szkenner Képernyő -->
+    <string name="nfc_title">ClassMaster Pro</string>
+    <string name="nfc_subtitle">NFC Órai Bejelentkezési Rendszer</string>
+    <string name="nfc_status_ready">NFC Készen Áll</string>
+    <string name="nfc_status_disabled">NFC Kikapcsolva</string>
+    <string name="nfc_status_not_supported">NFC Nem Támogatott</string>
+    <string name="nfc_check_status_button">NFC Állapot Ellenőrzése</string>
+    <string name="nfc_test_api_button">API Tesztelése</string>
+    <string name="nfc_enable_message">Kérlek engedélyezd az NFC-t a készülék beállításaiban</string>
+    <string name="nfc_success_message">API hívás sikeres!</string>
+    <string name="nfc_error_message">API hívás sikertelen: %s</string>
+
+    <!-- Közös -->
+    <string name="toggle_dark_mode">Sötét Mód Váltása</string>
+    <string name="logout">Kijelentkezés</string>
+    <string name="change_language">Nyelv Váltása</string>
+
+    <!-- Nyelvek -->
+    <string name="language_english">English</string>
+    <string name="language_hungarian">Magyar</string>
+</resources>

@@ -1,3 +1,44 @@
 <resources>
-    <string name="app_name">ClassMasterPro+</string>
+    <!-- App Name -->
+    <string name="app_name">ClassMaster Pro</string>
+
+    <!-- Login Screen -->
+    <string name="login_title">ClassMaster Pro</string>
+    <string name="login_subtitle">Sign in to continue</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="sign_in_button">Sign In</string>
+    <string name="demo_credentials_title">Test Credentials</string>
+    <string name="demo_email">Use your school email</string>
+    <string name="demo_password">Enter your password</string>
+    <string name="login_footer">Secure access for students and staff</string>
+
+    <!-- Login Errors -->
+    <string name="error_empty_fields">Please fill in all fields</string>
+    <string name="error_invalid_email">Please enter a valid email address</string>
+    <string name="error_invalid_credentials">Invalid email or password</string>
+    <string name="error_network_failure">Network error</string>
+    <string name="error_unknown">An error occurred</string>
+    <string name="success_login">Login successful!</string>
+
+    <!-- NFC Scanner Screen -->
+    <string name="nfc_title">ClassMaster Pro</string>
+    <string name="nfc_subtitle">NFC Class Entry System</string>
+    <string name="nfc_status_ready">NFC is Ready</string>
+    <string name="nfc_status_disabled">NFC is Disabled</string>
+    <string name="nfc_status_not_supported">NFC Not Supported</string>
+    <string name="nfc_check_status_button">Check NFC Status</string>
+    <string name="nfc_test_api_button">Test API Call</string>
+    <string name="nfc_enable_message">Please enable NFC in your device settings</string>
+    <string name="nfc_success_message">API call successful!</string>
+    <string name="nfc_error_message">API call failed: %s</string>
+
+    <!-- Common -->
+    <string name="toggle_dark_mode">Toggle Dark Mode</string>
+    <string name="logout">Logout</string>
+    <string name="change_language">Change Language</string>
+
+    <!-- Languages -->
+    <string name="language_english">English</string>
+    <string name="language_hungarian">Magyar</string>
 </resources>

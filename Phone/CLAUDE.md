@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Quick Navigation**: For fast code navigation and file location reference, see [`docs/CODE_NAVIGATION.md`](docs/CODE_NAVIGATION.md)
+
 ## Project Overview
 
 ClassMaster Pro is an Android NFC-based class entry system for school use. The app allows students to scan NFC tags/cards to check into classes.
@@ -157,3 +159,7 @@ When connecting to the actual backend:
 2. Add a new route in `navigation/AppNavigation.kt` (update the `Screen` sealed class)
 3. Add the composable to the NavHost in `AppNavigation.kt`
 4. Follow the existing pattern for dark mode support
+
+## Additional Documentation
+
+- **Code Navigation Guide**: [`docs/CODE_NAVIGATION.md`](docs/CODE_NAVIGATION.md) - Comprehensive guide for quickly locating files, functions, and common code patterns in the project

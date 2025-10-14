@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.classmasterpro.screens.LoginScreen
 import com.example.classmasterpro.screens.NFCScannerScreen
+import com.example.classmasterpro.screens.BlackjackScreen
 
 /**
  * Sealed class representing app navigation routes
@@ -14,6 +15,7 @@ import com.example.classmasterpro.screens.NFCScannerScreen
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object NFCScanner : Screen("nfc_scanner")
+    object Blackjack : Screen("blackjack")
 }
 
 /**
@@ -55,9 +57,16 @@ fun AppNavigation(
                         popUpTo(Screen.NFCScanner.route) { inclusive = true }
                     }
                 },
+                onOpenBlackjack = {
+                    navController.navigate(Screen.Blackjack.route)
+                },
                 isDarkMode = isDarkMode,
                 onToggleDarkMode = { isDarkMode = !isDarkMode }
             )
+        }
+
+        composable(Screen.Blackjack.route) {
+            BlackjackScreen()
         }
     }
 }

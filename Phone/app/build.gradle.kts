@@ -53,6 +53,9 @@ dependencies {
     // HTTP Client - OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    // JSON Parsing - Gson
+    implementation("com.google.code.gson:gson:2.10.1")
+
     // Icons Extended
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
 

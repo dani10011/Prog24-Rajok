@@ -3,6 +3,8 @@ package com.example.classmasterpro.screens
 import android.nfc.NfcAdapter
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.classmasterpro.ui.theme.*
-import com.example.classmasterpro.utils.makeApiCall
+import com.example.classmasterpro.utils.ApiHelper
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 enum class NFCStatus {
@@ -36,6 +39,7 @@ fun NFCScannerScreen(
     nfcAdapter: NfcAdapter?,
     onShowToast: (String) -> Unit,
     onLogout: () -> Unit = {},
+    onOpenBlackjack: () -> Unit = {},
     isDarkMode: Boolean = false,
     onToggleDarkMode: () -> Unit = {}
 ) {
@@ -43,6 +47,10 @@ fun NFCScannerScreen(
     var isLoading by remember { mutableStateOf(false) }
     var apiResponse by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+
+    // Easter egg corner tap detection
+    var tapSequence by remember { mutableStateOf(listOf<String>()) }
+    var lastTapTime by remember { mutableStateOf(0L) }
 
     // Check NFC status
     LaunchedEffect(Unit) {
@@ -299,7 +307,7 @@ fun NFCScannerScreen(
                             isLoading = true
                             apiResponse = ""
                             try {
-                                val response = makeApiCall()
+                                val response = ApiHelper.makeApiCall()
                                 apiResponse = "Success: $response"
                                 onShowToast("API call successful!")
                             } catch (e: Exception) {
@@ -349,6 +357,71 @@ fun NFCScannerScreen(
                 }
             }
         }
+
+        // Easter egg corner tap zones (invisible)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .height(80.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Left corner tap zone
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        val currentTime = System.currentTimeMillis()
+                        // Reset sequence if too much time has passed (3 seconds)
+                        if (currentTime - lastTapTime > 3000) {
+                            tapSequence = listOf("left")
+                        } else {
+                            tapSequence = tapSequence + "left"
+                        }
+                        lastTapTime = currentTime
+
+                        // Check for correct pattern: left, right, left, right
+                        if (tapSequence.size >= 4) {
+                            val lastFour = tapSequence.takeLast(4)
+                            if (lastFour == listOf("left", "right", "left", "right")) {
+                                onOpenBlackjack()
+                                tapSequence = emptyList() // Reset after opening
+                            }
+                        }
+                    }
+            )
+
+            // Right corner tap zone
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        val currentTime = System.currentTimeMillis()
+                        // Reset sequence if too much time has passed (3 seconds)
+                        if (currentTime - lastTapTime > 3000) {
+                            tapSequence = listOf("right")
+                        } else {
+                            tapSequence = tapSequence + "right"
+                        }
+                        lastTapTime = currentTime
+
+                        // Check for correct pattern: left, right, left, right
+                        if (tapSequence.size >= 4) {
+                            val lastFour = tapSequence.takeLast(4)
+                            if (lastFour == listOf("left", "right", "left", "right")) {
+                                onOpenBlackjack()
+                                tapSequence = emptyList() // Reset after opening
+                            }
+                        }
+                    }
+            )
+        }
     }
 }
 
@@ -360,6 +433,7 @@ fun NFCScannerScreenPreview() {
             nfcAdapter = null, // Will show as "Not Supported" in preview
             onShowToast = {},
             onLogout = {},
+            onOpenBlackjack = {},
             isDarkMode = false,
             onToggleDarkMode = {}
         )
@@ -374,6 +448,7 @@ fun NFCScannerScreenDarkPreview() {
             nfcAdapter = null,
             onShowToast = {},
             onLogout = {},
+            onOpenBlackjack = {},
             isDarkMode = true,
             onToggleDarkMode = {}
         )

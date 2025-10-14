@@ -22,5 +22,18 @@ namespace Prog24.WebAPI.Controllers
             var Users = await _UserService.GetUsers();
             return Ok(Users);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserInfo(int userId)
+        {
+            var userInfo = await _UserService.GetUserInfo(userId);
+            
+            if (userInfo == null)
+            {
+                return NotFound(new { message = $"User with ID {userId} not found." });
+            }
+            
+            return Ok(userInfo);
+        }
     }
 }

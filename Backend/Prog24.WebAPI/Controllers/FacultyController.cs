@@ -6,7 +6,7 @@ namespace Prog24.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class FacultyController : Controller
+    public class FacultyController : ControllerBase
     {
         private readonly IFacultyService _facultyService;
 
@@ -16,10 +16,10 @@ namespace Prog24.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Faculty>> GetFaculties()
+        public async Task<IActionResult> GetFaculties()
         {
              var faculties = await _facultyService.GetFaculties();
-             return faculties;
+             return Ok(faculties);
         }
 
         //public IActionResult Index()

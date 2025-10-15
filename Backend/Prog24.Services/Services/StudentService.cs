@@ -119,13 +119,16 @@ namespace Prog24.Services.Services
             // Find the student's current active course (enrolled + time matches)
             var currentCourse = await _dbContext.Course_student
                 .Where(cs => cs.Student_Id == studentUserId)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Subject)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Room)
+                        .ThenInclude(r => r.Building)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Instructor)
+                        .ThenInclude(i => i.User)
                 .Select(cs => cs.Course)
                 .Where(c => c.Start_Time <= currentTime && c.End_Time >= currentTime)
-                .Include(c => c.Subject)
-                .Include(c => c.Room)
-                    .ThenInclude(r => r.Building)
-                .Include(c => c.Instructor)
-                    .ThenInclude(i => i.User)
                 .FirstOrDefaultAsync();
 
             // If no current course, return empty response

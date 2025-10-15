@@ -4,7 +4,7 @@ using Prog24.Services.Services.Interfaces;
 
 namespace Prog24.WebAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]/[action]")]
     public class StudentController : ControllerBase
@@ -40,8 +40,18 @@ namespace Prog24.WebAPI.Controllers
         [HttpGet("{studentUserId}")]
         public async Task<IActionResult> GetCurrentLectureStatus(int studentUserId)
         {
-            var status = await _StudentService.GetCurrentLectureStatus(studentUserId);
-            return Ok(status);
+            try
+            {
+                var status = await _StudentService.GetCurrentLectureStatus(studentUserId);
+                return Ok(status);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging
+                Console.WriteLine($"Error in GetCurrentLectureStatus: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
         }
     }
 }

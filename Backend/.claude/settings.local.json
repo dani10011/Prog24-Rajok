@@ -4,7 +4,8 @@
       "mcp__ide__getDiagnostics",
       "Read(//c/Users/Bendi/Desktop/Prog24/Prog24-Rajok/**)",
       "Bash(dotnet build:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

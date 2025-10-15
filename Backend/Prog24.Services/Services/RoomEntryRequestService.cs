@@ -375,6 +375,7 @@ namespace Prog24.Services.Services
         public async Task<List<RoomEntryRequestResponse>> GetPendingRequestsForOngoingLecture(int instructorId)
         {
             var currentTime = DateTime.UtcNow;
+            Console.WriteLine($"[Service] GetPendingRequestsForOngoingLecture - InstructorId: {instructorId}, CurrentTime: {currentTime}");
 
             // Find the instructor's ongoing course (current time is between Start_Time and End_Time)
             var ongoingCourse = await _dbContext.Course
@@ -385,9 +386,12 @@ namespace Prog24.Services.Services
 
             if (ongoingCourse == null)
             {
+                Console.WriteLine("[Service] No ongoing lecture found, returning empty list");
                 // No ongoing lecture, return empty list
                 return new List<RoomEntryRequestResponse>();
             }
+
+            Console.WriteLine($"[Service] Found ongoing course: Id={ongoingCourse.Id}, InstructorId={ongoingCourse.Instructor_Id}");
 
             // Get pending requests for this specific course
             var requests = await _dbContext.Room_entry_request
@@ -403,7 +407,20 @@ namespace Prog24.Services.Services
                 .OrderBy(r => r.Request_Time)
                 .ToListAsync();
 
-            return requests.Select(MapToResponse).ToList();
+            Console.WriteLine($"[Service] Found {requests.Count} pending requests, mapping to response...");
+
+            try
+            {
+                var result = requests.Select(MapToResponse).ToList();
+                Console.WriteLine($"[Service] Successfully mapped {result.Count} responses");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Service] Error mapping responses: {ex.Message}");
+                Console.WriteLine($"[Service] StackTrace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         public async Task<int> ExpireOldRequests(int expirationHours = 24)

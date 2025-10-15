@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Prog24.DataContext;
 using Prog24.DataContext.Entities;
+using Prog24.Services.Model.Dto;
 using Prog24.Services.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -18,10 +19,24 @@ namespace Prog24.Services.Services
             _dbContext = dbContext;
         }
 
-        public async Task<List<Student>> GetStudents()
+        public async Task<List<StudentResponse>> GetStudents()
         {
-            var result = await _dbContext.Student.ToListAsync();
-            return result;
+            var students = await _dbContext.Student
+                .Include(s => s.User)
+                .Include(s => s.Major)
+                .ToListAsync();
+
+            var studentResponses = students.Select(student => new StudentResponse
+            {
+                UserId = student.User_Id,
+                Name = student.User.Name,
+                Email = student.User.Email,
+                Gender = student.Gender,
+                MajorId = student.Major_Id,
+                MajorName = student.Major.Name
+            }).ToList();
+
+            return studentResponses;
         }
     }
 }

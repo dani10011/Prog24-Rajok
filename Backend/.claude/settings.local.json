@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Read(//c/Users/Bendi/Desktop/Prog24/Prog24-Rajok/**)"
     ],
     "deny": [],
     "ask": []

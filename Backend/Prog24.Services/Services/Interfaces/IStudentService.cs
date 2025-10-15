@@ -13,5 +13,6 @@ namespace Prog24.Services.Services.Interfaces
         public Task<List<StudentResponse>> GetStudents();
         public Task<List<StudentInstructorResponse>> GetStudentInstructors(int studentUserId);
         public Task<List<TimetableItemResponse>> GetStudentCourseLocations(int studentUserId);
+        public Task<StudentCurrentLectureStatusResponse> GetCurrentLectureStatus(int studentUserId);
     }
 }

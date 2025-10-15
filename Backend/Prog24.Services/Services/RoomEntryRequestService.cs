@@ -224,6 +224,77 @@ namespace Prog24.Services.Services
                 ?? throw new Exception("Failed to retrieve updated request");
         }
 
+        public async Task<RoomEntryRequestResponse> ApproveStudentEntry(ApproveStudentEntryDto dto)
+        {
+            var currentTime = DateTime.UtcNow;
+
+            // Find the instructor's ongoing course
+            var ongoingCourse = await _dbContext.Course
+                .Where(c => c.Instructor_Id == dto.InstructorId
+                    && c.Start_Time <= currentTime
+                    && c.End_Time >= currentTime)
+                .FirstOrDefaultAsync();
+
+            if (ongoingCourse == null)
+            {
+                throw new Exception("No ongoing lecture found for this instructor");
+            }
+
+            // Find the pending entry request for this student in the ongoing course
+            var pendingRequest = await _dbContext.Room_entry_request
+                .Include(r => r.Student)
+                .Include(r => r.Course)
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(r => r.Student_Id == dto.StudentId
+                    && r.Course_Id == ongoingCourse.Id
+                    && r.Status == "Pending");
+
+            if (pendingRequest == null)
+            {
+                throw new Exception("No pending entry request found for this student in the current lecture");
+            }
+
+            // Update the request status
+            pendingRequest.Status = dto.IsApproved ? "Approved" : "Denied";
+            pendingRequest.Response_Time = currentTime;
+
+            // If approved, handle the attendance record
+            if (dto.IsApproved)
+            {
+                // Check if there's an existing active attendance record
+                var existingAttendance = await _dbContext.Student_class_attendance
+                    .FirstOrDefaultAsync(sca => sca.Student_Id == dto.StudentId
+                        && sca.Course_Id == ongoingCourse.Id
+                        && sca.Exit_Time == null);
+
+                if (existingAttendance != null)
+                {
+                    // This is an exit request - update Exit_Time
+                    existingAttendance.Exit_Time = pendingRequest.Request_Time;
+                    _dbContext.Student_class_attendance.Update(existingAttendance);
+                }
+                else
+                {
+                    // This is an entry request - create attendance record
+                    var attendance = new StudentClassAttendance
+                    {
+                        Student_Id = dto.StudentId,
+                        Course_Id = ongoingCourse.Id,
+                        Room_Id = pendingRequest.Room_Id,
+                        Entry_Time = pendingRequest.Request_Time,
+                        Exit_Time = null
+                    };
+
+                    _dbContext.Student_class_attendance.Add(attendance);
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return await GetRequestById(pendingRequest.Id)
+                ?? throw new Exception("Failed to retrieve updated request");
+        }
+
         public async Task<List<RoomEntryRequestResponse>> GetRequestsByInstructor(int instructorId, string? status = null)
         {
             var query = _dbContext.Room_entry_request
@@ -296,6 +367,40 @@ namespace Prog24.Services.Services
                     .ThenInclude(c => c.Subject)
                 .Where(r => r.Room_Id == roomId && r.Status == "Pending")
                 .OrderByDescending(r => r.Request_Time)
+                .ToListAsync();
+
+            return requests.Select(MapToResponse).ToList();
+        }
+
+        public async Task<List<RoomEntryRequestResponse>> GetPendingRequestsForOngoingLecture(int instructorId)
+        {
+            var currentTime = DateTime.UtcNow;
+
+            // Find the instructor's ongoing course (current time is between Start_Time and End_Time)
+            var ongoingCourse = await _dbContext.Course
+                .Where(c => c.Instructor_Id == instructorId
+                    && c.Start_Time <= currentTime
+                    && c.End_Time >= currentTime)
+                .FirstOrDefaultAsync();
+
+            if (ongoingCourse == null)
+            {
+                // No ongoing lecture, return empty list
+                return new List<RoomEntryRequestResponse>();
+            }
+
+            // Get pending requests for this specific course
+            var requests = await _dbContext.Room_entry_request
+                .Include(r => r.Student)
+                    .ThenInclude(s => s.User)
+                .Include(r => r.Instructor)
+                    .ThenInclude(i => i.User)
+                .Include(r => r.Room)
+                    .ThenInclude(rm => rm.Building)
+                .Include(r => r.Course)
+                    .ThenInclude(c => c.Subject)
+                .Where(r => r.Course_Id == ongoingCourse.Id && r.Status == "Pending")
+                .OrderBy(r => r.Request_Time)
                 .ToListAsync();
 
             return requests.Select(MapToResponse).ToList();

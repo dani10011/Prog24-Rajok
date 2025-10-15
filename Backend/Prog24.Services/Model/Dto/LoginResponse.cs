@@ -10,5 +10,6 @@ namespace Prog24.Services.Model.Dto
     {
         public int UserId { get; set; }
         public string Token { get; set; }
+        public string? PhoneId { get; set; }
     }
 }

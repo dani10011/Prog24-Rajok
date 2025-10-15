@@ -111,5 +111,72 @@ namespace Prog24.Services.Services
 
             return courseLocations;
         }
+
+        public async Task<StudentCurrentLectureStatusResponse> GetCurrentLectureStatus(int studentUserId)
+        {
+            var currentTime = DateTime.UtcNow;
+
+            // Find the student's current active course (enrolled + time matches)
+            var currentCourse = await _dbContext.Course_student
+                .Where(cs => cs.Student_Id == studentUserId)
+                .Select(cs => cs.Course)
+                .Where(c => c.Start_Time <= currentTime && c.End_Time >= currentTime)
+                .Include(c => c.Subject)
+                .Include(c => c.Room)
+                    .ThenInclude(r => r.Building)
+                .Include(c => c.Instructor)
+                    .ThenInclude(i => i.User)
+                .FirstOrDefaultAsync();
+
+            // If no current course, return empty response
+            if (currentCourse == null)
+            {
+                return new StudentCurrentLectureStatusResponse
+                {
+                    CourseId = null,
+                    SubjectName = null,
+                    RoomNumber = null,
+                    BuildingName = null,
+                    InstructorName = null,
+                    StartTime = null,
+                    EndTime = null,
+                    IsInAttendance = false,
+                    EntryTime = null,
+                    HasPendingRequest = false,
+                    PendingRequestId = null,
+                    RequestReason = null
+                };
+            }
+
+            // Check if student is currently in attendance (Exit_Time is NULL)
+            var activeAttendance = await _dbContext.Student_class_attendance
+                .FirstOrDefaultAsync(sca => sca.Student_Id == studentUserId
+                    && sca.Course_Id == currentCourse.Id
+                    && sca.Exit_Time == null);
+
+            // Check for pending room entry request for this course
+            var pendingRequest = await _dbContext.Room_entry_request
+                .Where(r => r.Student_Id == studentUserId
+                    && r.Course_Id == currentCourse.Id
+                    && r.Status == "Pending")
+                .OrderByDescending(r => r.Request_Time)
+                .FirstOrDefaultAsync();
+
+            return new StudentCurrentLectureStatusResponse
+            {
+                CourseId = currentCourse.Id,
+                SubjectName = currentCourse.Subject.Name,
+                RoomNumber = currentCourse.Room.Room_Number,
+                BuildingName = currentCourse.Room.Building.Name,
+                InstructorName = currentCourse.Instructor.User.Name,
+                StartTime = currentCourse.Start_Time,
+                EndTime = currentCourse.End_Time,
+                IsInAttendance = activeAttendance != null,
+                EntryTime = activeAttendance?.Entry_Time,
+                HasPendingRequest = pendingRequest != null,
+                PendingRequestId = pendingRequest?.Id,
+                RequestReason = pendingRequest?.Reason
+            };
+        }
     }
 }

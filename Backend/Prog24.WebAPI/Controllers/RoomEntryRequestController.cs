@@ -52,6 +52,23 @@ namespace Prog24.WebAPI.Controllers
         }
 
         /// <summary>
+        /// Approve or deny student entry by instructor for their ongoing lecture (Teacher endpoint)
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> ApproveStudentEntry([FromBody] ApproveStudentEntryDto dto)
+        {
+            try
+            {
+                var result = await _roomEntryRequestService.ApproveStudentEntry(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Get all requests for a specific instructor, optionally filtered by status
         /// </summary>
         [HttpGet]
@@ -115,6 +132,23 @@ namespace Prog24.WebAPI.Controllers
             try
             {
                 var requests = await _roomEntryRequestService.GetPendingRequestsByRoom(roomId);
+                return Ok(requests);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all pending requests for the instructor's ongoing lecture
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetPendingRequestsForOngoingLecture([FromQuery] int instructorId)
+        {
+            try
+            {
+                var requests = await _roomEntryRequestService.GetPendingRequestsForOngoingLecture(instructorId);
                 return Ok(requests);
             }
             catch (Exception ex)

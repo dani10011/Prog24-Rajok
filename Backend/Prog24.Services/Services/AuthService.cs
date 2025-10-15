@@ -57,10 +57,19 @@ namespace Prog24.Services.Services
 
                     var token = GenerateJwtToken(authClaims);
 
+                    // Check if user is a student and get their Phone_Id
+                    string? phoneId = null;
+                    var student = _appDbContext.Student.FirstOrDefault(s => s.User_Id == user.Id);
+                    if (student != null)
+                    {
+                        phoneId = student.Phone_Id;
+                    }
+
                     return new LoginResponse()
                     {
                         UserId = user.Id,
-                        Token = new JwtSecurityTokenHandler().WriteToken(token)
+                        Token = new JwtSecurityTokenHandler().WriteToken(token),
+                        PhoneId = phoneId
                     };
                 }
                 else

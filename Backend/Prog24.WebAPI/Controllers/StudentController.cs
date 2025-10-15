@@ -36,5 +36,12 @@ namespace Prog24.WebAPI.Controllers
             var courseLocations = await _StudentService.GetStudentCourseLocations(studentUserId);
             return Ok(courseLocations);
         }
+
+        [HttpGet("{studentUserId}")]
+        public async Task<IActionResult> GetCurrentLectureStatus(int studentUserId)
+        {
+            var status = await _StudentService.GetCurrentLectureStatus(studentUserId);
+            return Ok(status);
+        }
     }
 }

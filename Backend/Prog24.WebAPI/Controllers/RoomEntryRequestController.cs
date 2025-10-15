@@ -19,7 +19,9 @@ namespace Prog24.WebAPI.Controllers
 
         /// <summary>
         /// Create a new room entry request (Student endpoint)
+        /// No authentication required - used by NFC scanners
         /// </summary>
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateRequest([FromBody] CreateRoomEntryRequestDto request)
         {

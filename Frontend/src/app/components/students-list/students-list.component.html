@@ -1,15 +1,35 @@
 <div class="students-list-container">
-  <div class="header">
-    <button pButton type="button" icon="pi pi-arrow-left" label="Vissza" class="p-button-text" (click)="goBack()"></button>
-    <h2>Hallgatók listája</h2>
-    <button pButton type="button" icon="pi pi-sign-out" label="Kijelentkezés" class="p-button-text p-button-danger" (click)="onLogout()"></button>
+  <!-- Header -->
+  <div class="students-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="back-btn" (click)="goBack()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+        <div class="header-brand">
+          <i class="pi pi-users brand-icon"></i>
+          <span class="brand-text">Hallgatók listája</span>
+        </div>
+      </div>
+      <div class="header-user">
+        <span class="user-name">{{ getCurrentUserName() }}</span>
+        <button class="logout-btn" (click)="onLogout()" [disabled]="loading">
+          <i class="pi pi-sign-out"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <p-card>
+  <!-- Main Content -->
+  <div class="students-content">
+    <div class="content-wrapper">
+      <p-card styleClass="main-card">
+    <!-- Error Message -->
     <div *ngIf="errorMessage" class="error-message">
       <p-message severity="error" [text]="errorMessage"></p-message>
     </div>
 
+    <!-- Data Table -->
     <p-table
       #dt
       [value]="students"
@@ -17,74 +37,187 @@
       [rows]="rows"
       [rowsPerPageOptions]="rowsPerPageOptions"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="{first} - {last} / {totalRecords} hallgató"
+      currentPageReportTemplate="{first} - {last} / összesen {totalRecords} hallgató"
       [loading]="loading"
       [globalFilterFields]="['email', 'neptunCode', 'majorName', 'name', 'firstName', 'lastName']"
       [(first)]="first"
-      styleClass="p-datatable-striped"
-      responsiveLayout="scroll">
+      styleClass="p-datatable-striped p-datatable-gridlines"
+      responsiveLayout="scroll"
+      [rowHover]="true"
+      dataKey="id"
+      sortMode="multiple">
 
+      <!-- Table Caption with Search -->
       <ng-template pTemplate="caption">
-        <div class="table-header">
-          <span class="p-input-icon-left">
-            <i class="pi pi-search"></i>
-            <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Keresés..." />
-          </span>
+        <div class="table-caption">
+          <div class="caption-left">
+            <span class="caption-text">
+              <i class="pi pi-database"></i>
+              Hallgatói nyilvántartás
+            </span>
+          </div>
+          <div class="caption-right">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text"
+                     (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                     placeholder="Keresés az összes mezőben..."
+                     class="global-search" />
+            </span>
+          </div>
         </div>
       </ng-template>
 
+      <!-- Table Header -->
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="id">
-            ID <p-sortIcon field="id"></p-sortIcon>
+          <th pSortableColumn="id" style="width: 80px">
+            <div class="header-content">
+              <i class="pi pi-hashtag"></i>
+              ID
+              <p-sortIcon field="id"></p-sortIcon>
+            </div>
           </th>
-          <th pSortableColumn="email">
-            Email <p-sortIcon field="email"></p-sortIcon>
-          </th>
-          <th pSortableColumn="neptunCode">
-            Neptun kód <p-sortIcon field="neptunCode"></p-sortIcon>
-          </th>
-          <th pSortableColumn="majorName">
-            Szak <p-sortIcon field="majorName"></p-sortIcon>
+          <th pSortableColumn="neptunCode" style="width: 140px">
+            <div class="header-content">
+              <i class="pi pi-id-card"></i>
+              Neptun kód
+              <p-sortIcon field="neptunCode"></p-sortIcon>
+            </div>
           </th>
           <th pSortableColumn="name">
-            Név <p-sortIcon field="name"></p-sortIcon>
+            <div class="header-content">
+              <i class="pi pi-user"></i>
+              Név
+              <p-sortIcon field="name"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="email">
+            <div class="header-content">
+              <i class="pi pi-envelope"></i>
+              Email
+              <p-sortIcon field="email"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="majorName" style="width: 200px">
+            <div class="header-content">
+              <i class="pi pi-book"></i>
+              Szak
+              <p-sortIcon field="majorName"></p-sortIcon>
+            </div>
           </th>
         </tr>
-        <tr>
+        <!-- Filter Row -->
+        <tr class="filter-row">
           <th>
-            <input pInputText type="text" (input)="dt.filter($any($event.target).value, 'id', 'contains')" placeholder="Szűrés ID" class="p-column-filter" />
+            <span class="p-input-icon-left">
+              <i class="pi pi-filter-fill"></i>
+              <input pInputText type="text"
+                     (input)="dt.filter($any($event.target).value, 'id', 'contains')"
+                     placeholder="ID"
+                     class="p-column-filter" />
+            </span>
           </th>
           <th>
-            <input pInputText type="text" (input)="dt.filter($any($event.target).value, 'email', 'contains')" placeholder="Szűrés email" class="p-column-filter" />
+            <span class="p-input-icon-left">
+              <i class="pi pi-filter-fill"></i>
+              <input pInputText type="text"
+                     (input)="dt.filter($any($event.target).value, 'neptunCode', 'contains')"
+                     placeholder="Neptun"
+                     class="p-column-filter" />
+            </span>
           </th>
           <th>
-            <input pInputText type="text" (input)="dt.filter($any($event.target).value, 'neptunCode', 'contains')" placeholder="Szűrés Neptun" class="p-column-filter" />
+            <span class="p-input-icon-left">
+              <i class="pi pi-filter-fill"></i>
+              <input pInputText type="text"
+                     (input)="dt.filter($any($event.target).value, 'name', 'contains')"
+                     placeholder="Név"
+                     class="p-column-filter" />
+            </span>
           </th>
           <th>
-            <input pInputText type="text" (input)="dt.filter($any($event.target).value, 'majorName', 'contains')" placeholder="Szűrés szak" class="p-column-filter" />
+            <span class="p-input-icon-left">
+              <i class="pi pi-filter-fill"></i>
+              <input pInputText type="text"
+                     (input)="dt.filter($any($event.target).value, 'email', 'contains')"
+                     placeholder="Email"
+                     class="p-column-filter" />
+            </span>
           </th>
           <th>
-            <input pInputText type="text" (input)="dt.filter($any($event.target).value, 'name', 'contains')" placeholder="Szűrés név" class="p-column-filter" />
+            <span class="p-input-icon-left">
+              <i class="pi pi-filter-fill"></i>
+              <input pInputText type="text"
+                     (input)="dt.filter($any($event.target).value, 'majorName', 'contains')"
+                     placeholder="Szak"
+                     class="p-column-filter" />
+            </span>
           </th>
         </tr>
       </ng-template>
 
+      <!-- Table Body -->
       <ng-template pTemplate="body" let-student>
-        <tr>
-          <td>{{ student.id }}</td>
-          <td>{{ student.email }}</td>
-          <td>{{ student.neptunCode }}</td>
-          <td>{{ student.majorName || '-' }}</td>
-          <td>{{ getStudentDisplayName(student) }}</td>
+        <tr class="data-row">
+          <td>
+            <span class="id-badge">{{ student.id }}</span>
+          </td>
+          <td>
+            <p-tag [value]="student.neptunCode" severity="info" [rounded]="true"></p-tag>
+          </td>
+          <td>
+            <div class="student-name">
+              <i class="pi pi-user name-icon"></i>
+              <span>{{ getStudentDisplayName(student) }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="student-email">
+              <i class="pi pi-at"></i>
+              <span>{{ student.email }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="student-major">
+              <i class="pi pi-graduation-cap"></i>
+              <span>{{ student.majorName || '-' }}</span>
+            </div>
+          </td>
         </tr>
       </ng-template>
 
+      <!-- Empty Message -->
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="5" class="empty-message">Nincs megjeleníthető hallgató</td>
+          <td colspan="5">
+            <div class="empty-state">
+              <i class="pi pi-info-circle"></i>
+              <p>Nincs megjeleníthető hallgató</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Loading Template -->
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="5">
+            <div class="loading-state">
+              <i class="pi pi-spin pi-spinner"></i>
+              <p>Hallgatók betöltése...</p>
+            </div>
+          </td>
         </tr>
       </ng-template>
     </p-table>
-  </p-card>
+      </p-card>
+
+      <!-- Footer Info -->
+      <div class="footer-info">
+        <i class="pi pi-info-circle"></i>
+        <span>A táblázat minden oszlopa szerint rendezhető és szűrhető. Használja a globális keresést vagy az oszloponkénti szűrőket.</span>
+      </div>
+    </div>
+  </div>
 </div>

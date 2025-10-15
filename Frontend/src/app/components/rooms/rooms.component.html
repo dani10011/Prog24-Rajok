@@ -1,0 +1,406 @@
+<div class="rooms-container">
+  <!-- Header -->
+  <div class="rooms-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="back-btn" (click)="goBack()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+        <div class="header-brand">
+          <i class="pi pi-building brand-icon"></i>
+          <span class="brand-text">Tantermek</span>
+        </div>
+      </div>
+      <div class="header-user">
+        <span class="user-name">{{ currentUserName }}</span>
+        <button class="logout-btn" (click)="onLogout()" [disabled]="loading">
+          <i class="pi pi-sign-out"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="rooms-content">
+    <div class="content-wrapper">
+      <!-- Rooms Card -->
+      <p-card class="main-card">
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="error-message">
+          <p-message severity="error" [text]="errorMessage"></p-message>
+        </div>
+
+        <!-- Data Table -->
+        <p-table
+          #roomsTable
+          [value]="rooms"
+          [paginator]="true"
+          [rows]="10"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{first} - {last} / összesen {totalRecords} terem"
+          [loading]="loading"
+          [globalFilterFields]="['room_Number', 'capacity', 'building_Id']"
+          styleClass="p-datatable-striped p-datatable-gridlines p-datatable-sm"
+          responsiveLayout="scroll"
+          [rowHover]="true"
+          dataKey="id"
+          [sortField]="'id'"
+          [sortOrder]="1"
+          sortMode="multiple">
+
+          <!-- Table Caption with Search -->
+          <ng-template pTemplate="caption">
+            <div class="table-caption">
+              <div class="caption-left">
+                <span class="caption-text">
+                  <i class="pi pi-list"></i>
+                  Összes tanterem
+                </span>
+              </div>
+              <div class="caption-right">
+                <span class="p-input-icon-left">
+                  <i class="pi pi-search"></i>
+                  <input pInputText type="text"
+                         (input)="roomsTable.filterGlobal($any($event.target).value, 'contains')"
+                         placeholder="Keresés..."
+                         class="global-search" />
+                </span>
+              </div>
+            </div>
+          </ng-template>
+
+          <!-- Table Header -->
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="id" style="min-width: 80px">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-hashtag"></i>
+                  <span>ID</span>
+                  <p-sortIcon field="id"></p-sortIcon>
+                </div>
+              </th>
+              <th pSortableColumn="room_Number" style="min-width: 150px">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-tag"></i>
+                  <span>Terem száma</span>
+                  <p-sortIcon field="room_Number"></p-sortIcon>
+                </div>
+              </th>
+              <th pSortableColumn="capacity" style="min-width: 120px">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-users"></i>
+                  <span>Férőhely</span>
+                  <p-sortIcon field="capacity"></p-sortIcon>
+                </div>
+              </th>
+              <th pSortableColumn="is_Computer_Room" style="min-width: 180px">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-desktop"></i>
+                  <span>Típus</span>
+                  <p-sortIcon field="is_Computer_Room"></p-sortIcon>
+                </div>
+              </th>
+              <th pSortableColumn="building_Id" style="min-width: 120px">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-building"></i>
+                  <span>Épület ID</span>
+                  <p-sortIcon field="building_Id"></p-sortIcon>
+                </div>
+              </th>
+              <th style="min-width: 150px">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-cog"></i>
+                  <span>Műveletek</span>
+                </div>
+              </th>
+            </tr>
+            <!-- Filter Row -->
+            <tr class="filter-row">
+              <th>
+                <span class="p-input-icon-left">
+                  <i class="pi pi-filter-fill"></i>
+                  <input pInputText type="text"
+                         (input)="roomsTable.filter($any($event.target).value, 'id', 'contains')"
+                         placeholder="ID"
+                         class="p-column-filter" />
+                </span>
+              </th>
+              <th>
+                <span class="p-input-icon-left">
+                  <i class="pi pi-filter-fill"></i>
+                  <input pInputText type="text"
+                         (input)="roomsTable.filter($any($event.target).value, 'room_Number', 'contains')"
+                         placeholder="Terem"
+                         class="p-column-filter" />
+                </span>
+              </th>
+              <th>
+                <span class="p-input-icon-left">
+                  <i class="pi pi-filter-fill"></i>
+                  <input pInputText type="text"
+                         (input)="roomsTable.filter($any($event.target).value, 'capacity', 'contains')"
+                         placeholder="Férőhely"
+                         class="p-column-filter" />
+                </span>
+              </th>
+              <th>
+                <!-- No filter for type -->
+              </th>
+              <th>
+                <span class="p-input-icon-left">
+                  <i class="pi pi-filter-fill"></i>
+                  <input pInputText type="text"
+                         (input)="roomsTable.filter($any($event.target).value, 'building_Id', 'contains')"
+                         placeholder="Épület"
+                         class="p-column-filter" />
+                </span>
+              </th>
+              <th>
+                <!-- No filter for actions -->
+              </th>
+            </tr>
+          </ng-template>
+
+          <!-- Table Body -->
+          <ng-template pTemplate="body" let-room>
+            <tr class="data-row">
+              <td>
+                <span class="id-badge">{{ room.id }}</span>
+              </td>
+              <td>
+                <div class="room-number">
+                  <i class="pi pi-map-marker"></i>
+                  <span>{{ room.room_Number }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="room-capacity">
+                  <i class="pi pi-users"></i>
+                  <span>{{ room.capacity }} fő</span>
+                </div>
+              </td>
+              <td>
+                <p-tag
+                  [value]="getRoomTypeLabel(room)"
+                  [severity]="room.is_Computer_Room ? 'success' : 'info'"
+                  [rounded]="true">
+                </p-tag>
+              </td>
+              <td>
+                <div class="building-info">
+                  <i class="pi pi-building"></i>
+                  <span>Épület {{ room.building_Id }}</span>
+                </div>
+              </td>
+              <td>
+                <button pButton type="button"
+                        label="Foglalás"
+                        icon="pi pi-calendar-plus"
+                        class="p-button-sm p-button-success"
+                        (click)="showBookingModal(room)">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <!-- Empty Message -->
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6">
+                <div class="empty-state">
+                  <i class="pi pi-info-circle"></i>
+                  <p>Nincs megjeleníthető tanterem</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <!-- Loading Template -->
+          <ng-template pTemplate="loadingbody">
+            <tr>
+              <td colspan="6">
+                <div class="loading-state">
+                  <i class="pi pi-spin pi-spinner"></i>
+                  <p>Tantermek betöltése...</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <p-dialog
+    [(visible)]="displayBookingModal"
+    [header]="'Terem foglalása - ' + (selectedRoom?.room_Number || '')"
+    [modal]="true"
+    [style]="{width: '700px'}"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="booking-dialog">
+
+    <ng-template pTemplate="content">
+      <div class="booking-modal-content" *ngIf="selectedRoom">
+        <!-- Room Details -->
+        <div class="room-details-section">
+          <h4><i class="pi pi-info-circle"></i> Terem adatai</h4>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Terem száma:</span>
+              <span class="detail-value">{{ selectedRoom.room_Number }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Épület:</span>
+              <span class="detail-value">Épület {{ selectedRoom.building_Id }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Férőhely:</span>
+              <span class="detail-value">{{ selectedRoom.capacity }} fő</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Típus:</span>
+              <span class="detail-value">{{ getRoomTypeLabel(selectedRoom) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Booking Form -->
+        <div class="booking-form-section">
+          <h4><i class="pi pi-calendar"></i> Foglalás részletei</h4>
+
+          <!-- Debug Info (remove in production) -->
+          <div class="debug-info" style="background: #f0f0f0; padding: 0.5rem; margin-bottom: 1rem; border-radius: 4px; font-size: 0.85rem;">
+            <strong>Debug Info:</strong><br>
+            Órák száma: {{ instructorCourses.length }}<br>
+            Tantárgyak száma: {{ subjects.length }}<br>
+            Loading órák: {{ loadingCourses }}<br>
+            Loading tantárgyak: {{ loadingSubjects }}
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="bookingError" class="error-message">
+            <p-message severity="error" [text]="bookingError"></p-message>
+          </div>
+
+          <form [formGroup]="bookingForm" class="booking-form">
+            <!-- Course Selection -->
+            <div class="form-field">
+              <label for="course">
+                <i class="pi pi-calendar-plus"></i>
+                Melyik órájára foglalja? *
+              </label>
+              <p-dropdown
+                id="course"
+                formControlName="courseId"
+                [options]="instructorCourses"
+                optionLabel="displayName"
+                optionValue="courseId"
+                placeholder="Válasszon egy órát"
+                [filter]="true"
+                filterBy="displayName"
+                [showClear]="true"
+                [disabled]="loadingCourses"
+                styleClass="w-full"
+                (onChange)="onCourseSelected($event)">
+                <ng-template let-course pTemplate="item">
+                  <div class="course-option">
+                    <div class="course-name">{{ course.subjectName }}</div>
+                    <div class="course-time">{{ course.dayOfWeek }}, {{ course.startTime }} - {{ course.endTime }}</div>
+                  </div>
+                </ng-template>
+              </p-dropdown>
+              <small class="loading-indicator" *ngIf="loadingCourses">
+                <i class="pi pi-spin pi-spinner"></i> Órák betöltése...
+              </small>
+              <small class="field-help" *ngIf="bookingForm.get('courseId')?.value">
+                Kiválasztott tantárgy: <strong>{{ getSelectedCourseName() }}</strong>
+              </small>
+            </div>
+
+            <!-- Start Time -->
+            <div class="form-field">
+              <label for="startTime">
+                <i class="pi pi-clock"></i>
+                Kezdési időpont *
+              </label>
+              <p-calendar
+                id="startTime"
+                formControlName="startTime"
+                [showTime]="true"
+                [showSeconds]="false"
+                dateFormat="yy-mm-dd"
+                hourFormat="24"
+                placeholder="Válasszon kezdési időpontot"
+                [showIcon]="true"
+                styleClass="w-full">
+              </p-calendar>
+              <small class="field-help">
+                Automatikusan kitöltődik óra kiválasztásakor
+              </small>
+            </div>
+
+            <!-- End Time -->
+            <div class="form-field">
+              <label for="endTime">
+                <i class="pi pi-clock"></i>
+                Befejezési időpont *
+              </label>
+              <p-calendar
+                id="endTime"
+                formControlName="endTime"
+                [showTime]="true"
+                [showSeconds]="false"
+                dateFormat="yy-mm-dd"
+                hourFormat="24"
+                placeholder="Válasszon befejezési időpontot"
+                [showIcon]="true"
+                styleClass="w-full">
+              </p-calendar>
+              <small class="field-help">
+                Automatikusan kitöltődik óra kiválasztásakor
+              </small>
+            </div>
+
+            <!-- Name Suffix (Optional) -->
+            <div class="form-field">
+              <label for="nameSuffix">
+                <i class="pi pi-tag"></i>
+                Név utótag (opcionális)
+              </label>
+              <input
+                pInputText
+                id="nameSuffix"
+                formControlName="nameSuffix"
+                placeholder="pl. A csoport, Labor"
+                class="w-full" />
+              <small class="field-help">
+                Opcionális megkülönböztető név a kurzushoz
+              </small>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton type="button"
+              label="Mégse"
+              icon="pi pi-times"
+              class="p-button-text p-button-secondary"
+              (click)="hideBookingModal()"
+              [disabled]="submittingBooking">
+      </button>
+      <button pButton type="button"
+              label="Foglalás"
+              icon="pi pi-check"
+              class="p-button-success"
+              (click)="confirmBooking()"
+              [disabled]="bookingForm.invalid || submittingBooking"
+              [loading]="submittingBooking">
+      </button>
+    </ng-template>
+  </p-dialog>
+</div>

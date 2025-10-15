@@ -94,4 +94,13 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.authService.logout();
   }
+
+  /**
+   * Get current user name
+   */
+  getCurrentUserName(): string {
+    const user = this.authService.getCurrentUser();
+    if (!user) return '';
+    return user.name || user.firstName || user.username || user.email.split('@')[0];
+  }
 }

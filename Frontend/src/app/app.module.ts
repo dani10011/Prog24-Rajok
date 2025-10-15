@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 // PrimeNG Modules
@@ -16,6 +16,11 @@ import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TableModule } from 'primeng/table';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TagModule } from 'primeng/tag';
+import { DialogModule } from 'primeng/dialog';
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
 import { CommonModule } from '@angular/common';
 
 // App Modules
@@ -40,6 +45,8 @@ import { RoleGuard } from './guards/role.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { ScheduleComponent } from './components/schedule/schedule.component';
 import { StudentsListComponent } from './components/students-list/students-list.component';
+import { RoomsComponent } from './components/rooms/rooms.component';
+import { CoursesComponent } from './components/courses/courses.component';
 
 @NgModule({
   declarations: [
@@ -50,13 +57,16 @@ import { StudentsListComponent } from './components/students-list/students-list.
     TeacherDashboardComponent,
     StudentDashboardComponent,
     ScheduleComponent,
-    StudentsListComponent
+    StudentsListComponent,
+    RoomsComponent,
+    CoursesComponent
   ],
   imports: [
     BrowserModule,
     CommonModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
+    FormsModule,
     HttpClientModule,
     AppRoutingModule,
     // PrimeNG Modules
@@ -70,7 +80,12 @@ import { StudentsListComponent } from './components/students-list/students-list.
     BadgeModule,
     AvatarModule,
     TooltipModule,
-    TableModule
+    TableModule,
+    ToolbarModule,
+    TagModule,
+    DialogModule,
+    CalendarModule,
+    DropdownModule
   ],
   providers: [
     AuthService,

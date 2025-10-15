@@ -8,6 +8,8 @@ import { TeacherDashboardComponent } from './components/teacher-dashboard/teache
 import { StudentDashboardComponent } from './components/student-dashboard/student-dashboard.component';
 import { ScheduleComponent } from './components/schedule/schedule.component';
 import { StudentsListComponent } from './components/students-list/students-list.component';
+import { RoomsComponent } from './components/rooms/rooms.component';
+import { CoursesComponent } from './components/courses/courses.component';
 
 // Guards
 import { AuthGuard } from './guards/auth.guard';
@@ -58,6 +60,19 @@ const routes: Routes = [
     component: StudentsListComponent,
     canActivate: [RoleGuard],
     data: { allowedRoles: [2] }
+  },
+  // Rooms (protected route for instructors)
+  {
+    path: 'rooms',
+    component: RoomsComponent,
+    canActivate: [RoleGuard],
+    data: { allowedRoles: [2] }
+  },
+  // Courses (protected route for authenticated users - both students and instructors)
+  {
+    path: 'courses',
+    component: CoursesComponent,
+    canActivate: [AuthGuard]
   },
   // Wildcard route - redirect to login
   {

@@ -20,7 +20,7 @@ room_id = args.roomId
 print(f"Scanner initialized for Room ID: {room_id}")
 
 # Load API URL from environment
-API_BASE_URL = "https://09cc208360a9.ngrok-free.app"
+API_BASE_URL = "https://72ee88981b0e.ngrok-free.app"
 API_URL = f"{API_BASE_URL}/api/RoomEntryRequest/CreateRequest"
 
 i2c = busio.I2C(board.SCL, board.SDA)

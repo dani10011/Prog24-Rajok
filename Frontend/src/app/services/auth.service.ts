@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { delay, map, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { User } from '../interfaces/user.interface';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 import { LoginCredentials } from '../interfaces/login-credentials.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,19 +14,23 @@ import { LoginCredentials } from '../interfaces/login-credentials.interface';
 export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'auth_user';
-  
+  private readonly apiUrl = environment.apiUrl;
+
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser$: Observable<User | null>;
-  
+
   private isAuthenticatedSubject: BehaviorSubject<boolean>;
   public isAuthenticated$: Observable<boolean>;
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) {
     // Initialize with stored user data if available
     const storedUser = this.getStoredUser();
     this.currentUserSubject = new BehaviorSubject<User | null>(storedUser);
     this.currentUser$ = this.currentUserSubject.asObservable();
-    
+
     this.isAuthenticatedSubject = new BehaviorSubject<boolean>(!!storedUser);
     this.isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   }
@@ -45,36 +51,241 @@ export class AuthService {
 
   /**
    * Login user with credentials
-   * NOTE: This is a mock implementation. Replace with actual HTTP call to your backend API
    */
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    // Mock authentication - Replace this with actual HTTP call
-    // Example: return this.http.post<AuthResponse>('/api/auth/login', credentials);
-    
-    return of({
-      success: true,
-      token: 'mock-jwt-token-' + Date.now(),
-      user: {
-        id: '1',
-        email: credentials.email,
-        username: credentials.email.split('@')[0],
-        firstName: 'Demo',
-        lastName: 'User',
-        role: 'admin',
-        role_id: 3, // 1: Admin, 2: Teacher, 3: Student
-        createdAt: new Date(),
-        lastLogin: new Date()
-      },
-      expiresIn: 3600,
-      message: 'Login successful'
-    }).pipe(
-      delay(1000), // Simulate network delay
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<any>(`${this.apiUrl}/api/Auth/Login`, credentials, { headers }).pipe(
+      map(response => {
+        // Debug: log the backend response
+        console.log('=== BACKEND RESPONSE ===');
+        console.log('Full response:', JSON.stringify(response, null, 2));
+        console.log('=======================');
+
+        const token = response.token;
+
+        if (!token) {
+          throw new Error('No token received from backend');
+        }
+
+        // Extract data from JWT token
+        const roleId = this.extractRoleIdFromToken(token);
+        const userIdFromToken = this.extractUserIdFromToken(token);
+        const emailFromToken = this.extractEmailFromToken(token);
+        const nameFromToken = this.extractNameFromToken(token);
+
+        // Prefer backend response data, fallback to token data
+        const userId = response.userId || userIdFromToken || credentials.email;
+        const email = response.email || emailFromToken || credentials.email;
+        const name = response.name || nameFromToken || email;
+        const neptunCode = response.neptunCode || '';
+
+        const authResponse: AuthResponse = {
+          success: true,
+          token: token,
+          user: {
+            id: userId,
+            email: email,
+            username: email ? email.split('@')[0] : 'unknown',
+            name: name,
+            neptun_code: neptunCode,
+            role_id: roleId,
+            role: this.getRoleName(roleId),
+            createdAt: new Date(),
+            lastLogin: new Date()
+          },
+          expiresIn: response.expiresIn || 3600,
+          message: response.message || 'Login successful'
+        };
+
+        console.log('=== TRANSFORMED AUTH RESPONSE ===');
+        console.log('User ID:', authResponse.user.id);
+        console.log('User email:', authResponse.user.email);
+        console.log('User name:', authResponse.user.name);
+        console.log('User role_id:', authResponse.user.role_id);
+        console.log('User role:', authResponse.user.role);
+        console.log('================================');
+
+        return authResponse;
+      }),
       tap(response => {
         if (response.success) {
           this.setSession(response);
+          console.log('Session set. Dashboard route:', this.getDashboardRoute());
         }
+      }),
+      catchError(error => {
+        console.error('Login error:', error);
+        let errorMessage = 'An error occurred during login. Please try again.';
+
+        if (error.status === 401) {
+          errorMessage = 'Invalid email or password.';
+        } else if (error.status === 404) {
+          errorMessage = 'Login service not found. Please contact support.';
+        } else if (error.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your connection.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+
+        return throwError(() => new Error(errorMessage));
       })
     );
+  }
+
+  /**
+   * Get role name from role_id
+   */
+  private getRoleName(roleId: number): string {
+    switch (roleId) {
+      case 1:
+        return 'admin';
+      case 2:
+        return 'instructor';
+      case 3:
+        return 'student';
+      default:
+        return 'unknown';
+    }
+  }
+
+  /**
+   * Decode JWT token and extract payload
+   */
+  private decodeToken(token: string): any {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.error('Invalid JWT token format');
+        return null;
+      }
+
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded);
+    } catch (error) {
+      console.error('Error decoding JWT token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Extract role ID from JWT token
+   */
+  private extractRoleIdFromToken(token: string): number {
+    const payload = this.decodeToken(token);
+
+    if (!payload) {
+      console.error('Failed to decode token payload');
+      return 3; // Default to student
+    }
+
+    console.log('JWT Payload:', payload);
+
+    // Check for role claim (Microsoft Identity format)
+    const roleClaim = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+    if (roleClaim) {
+      console.log('Role claim found:', roleClaim);
+
+      // Map role string to role_id
+      switch (roleClaim.toLowerCase()) {
+        case 'admin':
+          return 1;
+        case 'instructor':
+          return 2;
+        case 'student':
+          return 3;
+        default:
+          console.warn('Unknown role:', roleClaim);
+          return 3; // Default to student
+      }
+    }
+
+    // Fallback: check for standard 'role' claim
+    if (payload.role) {
+      console.log('Standard role claim found:', payload.role);
+
+      switch (payload.role.toLowerCase()) {
+        case 'admin':
+          return 1;
+        case 'instructor':
+          return 2;
+        case 'student':
+          return 3;
+        default:
+          return 3;
+      }
+    }
+
+    console.warn('No role claim found in token, defaulting to student');
+    return 3;
+  }
+
+  /**
+   * Extract user ID from JWT token
+   */
+  private extractUserIdFromToken(token: string): string | null {
+    const payload = this.decodeToken(token);
+
+    if (!payload) {
+      return null;
+    }
+
+    // Check for nameidentifier claim (Microsoft Identity format)
+    const userIdClaim = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+    if (userIdClaim) {
+      return userIdClaim;
+    }
+
+    // Fallback to standard claims
+    return payload.sub || payload.userId || payload.id || null;
+  }
+
+  /**
+   * Extract email from JWT token
+   */
+  private extractEmailFromToken(token: string): string | null {
+    const payload = this.decodeToken(token);
+
+    if (!payload) {
+      return null;
+    }
+
+    // Check for email claim (Microsoft Identity format)
+    const emailClaim = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
+
+    if (emailClaim) {
+      return emailClaim;
+    }
+
+    // Fallback to standard claims
+    return payload.email || null;
+  }
+
+  /**
+   * Extract name from JWT token
+   */
+  private extractNameFromToken(token: string): string | null {
+    const payload = this.decodeToken(token);
+
+    if (!payload) {
+      return null;
+    }
+
+    // Check for name claim (Microsoft Identity format)
+    const nameClaim = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+
+    if (nameClaim) {
+      return nameClaim;
+    }
+
+    // Fallback to standard claims
+    return payload.name || null;
   }
 
   /**
@@ -137,28 +348,40 @@ export class AuthService {
   }
 
   /**
-   * Refresh token (mock implementation)
-   * Replace with actual API call
+   * Refresh token
    */
   refreshToken(): Observable<AuthResponse> {
     const currentUser = this.currentUserValue;
-    if (!currentUser) {
+    const token = this.getToken();
+
+    if (!currentUser || !token) {
       return throwError(() => new Error('No user logged in'));
     }
 
-    // Mock refresh - Replace with actual HTTP call
-    return of({
-      success: true,
-      token: 'refreshed-jwt-token-' + Date.now(),
-      user: currentUser,
-      expiresIn: 3600,
-      message: 'Token refreshed'
-    }).pipe(
-      delay(500),
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<any>(`${this.apiUrl}/api/Auth/RefreshToken`, {}, { headers }).pipe(
+      map(response => ({
+        success: true,
+        token: response.token,
+        user: currentUser,
+        expiresIn: response.expiresIn || 3600,
+        message: 'Token refreshed'
+      })),
       tap(response => {
         if (response.success) {
           localStorage.setItem(this.TOKEN_KEY, response.token);
         }
+      }),
+      catchError(error => {
+        console.error('Token refresh error:', error);
+        // If refresh fails, logout user
+        this.logout();
+        return throwError(() => new Error('Session expired. Please login again.'));
       })
     );
   }
@@ -190,10 +413,18 @@ export class AuthService {
   }
 
   /**
-   * Check if user is teacher (role_id = 2)
+   * Check if user is instructor (role_id = 2)
+   */
+  isInstructor(): boolean {
+    return this.getUserRoleId() === 2;
+  }
+
+  /**
+   * Check if user is teacher (alias for isInstructor)
+   * @deprecated Use isInstructor() instead
    */
   isTeacher(): boolean {
-    return this.getUserRoleId() === 2;
+    return this.isInstructor();
   }
 
   /**
@@ -211,6 +442,13 @@ export class AuthService {
   }
 
   /**
+   * Get current user
+   */
+  getCurrentUser(): User | null {
+    return this.currentUserValue;
+  }
+
+  /**
    * Get dashboard route based on user role
    */
   getDashboardRoute(): string {
@@ -219,7 +457,7 @@ export class AuthService {
       case 1:
         return '/admin-dashboard';
       case 2:
-        return '/teacher-dashboard';
+        return '/instructor-dashboard';
       case 3:
         return '/student-dashboard';
       default:

@@ -3,10 +3,11 @@ import { RouterModule, Routes } from '@angular/router';
 
 // Components
 import { LoginComponent } from './components/login/login.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { TeacherDashboardComponent } from './components/teacher-dashboard/teacher-dashboard.component';
 import { StudentDashboardComponent } from './components/student-dashboard/student-dashboard.component';
+import { ScheduleComponent } from './components/schedule/schedule.component';
+import { StudentsListComponent } from './components/students-list/students-list.component';
 
 // Guards
 import { AuthGuard } from './guards/auth.guard';
@@ -31,9 +32,9 @@ const routes: Routes = [
     canActivate: [RoleGuard],
     data: { allowedRoles: [1] }
   },
-  // Teacher Dashboard (role_id: 2)
+  // Instructor Dashboard (role_id: 2)
   {
-    path: 'teacher-dashboard',
+    path: 'instructor-dashboard',
     component: TeacherDashboardComponent,
     canActivate: [RoleGuard],
     data: { allowedRoles: [2] }
@@ -45,11 +46,18 @@ const routes: Routes = [
     canActivate: [RoleGuard],
     data: { allowedRoles: [3] }
   },
-  // Legacy dashboard route (protected, kept for compatibility)
+  // Schedule (protected route for students)
   {
-    path: 'dashboard',
-    component: DashboardComponent,
+    path: 'schedule',
+    component: ScheduleComponent,
     canActivate: [AuthGuard]
+  },
+  // Students List (protected route for instructors)
+  {
+    path: 'students',
+    component: StudentsListComponent,
+    canActivate: [RoleGuard],
+    data: { allowedRoles: [2] }
   },
   // Wildcard route - redirect to login
   {

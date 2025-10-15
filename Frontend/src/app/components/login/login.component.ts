@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private initializeForm(): void {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required]]
     });
   }
 
@@ -90,6 +90,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             console.log('Login successful:', response.message);
             // Navigate to return url or role-based dashboard
             const targetRoute = this.returnUrl || this.authService.getDashboardRoute();
+            console.log('Navigating to:', targetRoute);
             this.router.navigate([targetRoute]);
           } else {
             this.errorMessage = response.message || 'Login failed. Please try again.';

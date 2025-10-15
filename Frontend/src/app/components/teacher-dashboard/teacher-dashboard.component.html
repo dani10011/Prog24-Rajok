@@ -31,7 +31,7 @@
             </p-avatar>
             <div class="welcome-text">
               <h2>Üdvözöljük, {{ currentUser?.firstName || currentUser?.username }}!</h2>
-              <p>Tanári jogosultsággal bejelentkezve</p>
+              <p>Oktatói jogosultsággal bejelentkezve</p>
             </div>
           </div>
         </ng-template>
@@ -41,14 +41,14 @@
       <p-card class="actions-card">
         <ng-template pTemplate="header">
           <div class="card-header">
-            <i class="pi pi-calendar card-icon"></i>
-            <h3>Tanári Műveletek</h3>
+            <i class="pi pi-th-large card-icon"></i>
+            <h3>Oktatói Műveletek</h3>
           </div>
         </ng-template>
 
         <ng-template pTemplate="content">
           <div class="actions-grid">
-            <div class="action-item" pRipple>
+            <div class="action-item" pRipple routerLink="/schedule" style="cursor: pointer;">
               <i class="pi pi-calendar action-icon"></i>
               <h4>Órarend</h4>
               <p>Személyes órarend megtekintése</p>
@@ -60,16 +60,16 @@
               <p>Tanterem foglalása órához</p>
             </div>
 
-            <div class="action-item" pRipple>
+            <div class="action-item" pRipple routerLink="/students" style="cursor: pointer;">
               <i class="pi pi-users action-icon"></i>
-              <h4>Diákok</h4>
-              <p>Diákok listájának megtekintése</p>
+              <h4>Hallgatók</h4>
+              <p>Hallgatók listájának megtekintése</p>
             </div>
 
             <div class="action-item" pRipple>
               <i class="pi pi-book action-icon"></i>
               <h4>Tantárgyaim</h4>
-              <p>Tanított tantárgyak kezelése</p>
+              <p>Oktatott tantárgyak kezelése</p>
             </div>
           </div>
         </ng-template>
@@ -118,7 +118,7 @@
                 Szerepkör:
               </span>
               <span class="info-value">
-                Tanár
+                Oktató
                 <p-badge [value]="currentUser?.role_id?.toString()" severity="warning"></p-badge>
               </span>
             </div>

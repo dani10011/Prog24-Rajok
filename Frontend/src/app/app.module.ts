@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +15,7 @@ import { RippleModule } from 'primeng/ripple';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
+import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 
 // App Modules
@@ -35,6 +36,11 @@ import { AuthService } from './services/auth.service';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 
+// Interceptors
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { ScheduleComponent } from './components/schedule/schedule.component';
+import { StudentsListComponent } from './components/students-list/students-list.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,7 +48,9 @@ import { RoleGuard } from './guards/role.guard';
     DashboardComponent,
     AdminDashboardComponent,
     TeacherDashboardComponent,
-    StudentDashboardComponent
+    StudentDashboardComponent,
+    ScheduleComponent,
+    StudentsListComponent
   ],
   imports: [
     BrowserModule,
@@ -61,12 +69,18 @@ import { RoleGuard } from './guards/role.guard';
     RippleModule,
     BadgeModule,
     AvatarModule,
-    TooltipModule
+    TooltipModule,
+    TableModule
   ],
   providers: [
     AuthService,
     AuthGuard,
-    RoleGuard
+    RoleGuard,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

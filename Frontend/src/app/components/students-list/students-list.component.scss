@@ -1,0 +1,67 @@
+.students-list-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      margin: 0;
+      color: #333;
+    }
+  }
+
+  .error-message {
+    margin-bottom: 1rem;
+  }
+
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .p-input-icon-left {
+      width: 300px;
+
+      input {
+        width: 100%;
+      }
+    }
+  }
+
+  .p-column-filter {
+    width: 100%;
+    padding: 0.5rem;
+  }
+
+  .empty-message {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+  }
+}
+
+::ng-deep {
+  .p-datatable {
+    .p-datatable-thead > tr > th {
+      background-color: #f8f9fa;
+      color: #495057;
+      border: 1px solid #dee2e6;
+      padding: 1rem;
+    }
+
+    .p-datatable-tbody > tr > td {
+      border: 1px solid #dee2e6;
+      padding: 1rem;
+    }
+
+    .p-paginator {
+      padding: 1rem;
+    }
+  }
+}

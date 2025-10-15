@@ -23,5 +23,6 @@ namespace Prog24.DataContext.Entities
         public Department Department { get; set; } = null!;
         public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
         public ICollection<Course> Courses { get; set; } = new List<Course>();
+        public ICollection<RoomEntryRequest> RoomEntryRequests { get; set; } = new List<RoomEntryRequest>();
     }
 }

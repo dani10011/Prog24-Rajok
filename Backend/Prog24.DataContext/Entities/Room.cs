@@ -21,5 +21,6 @@ namespace Prog24.DataContext.Entities
         public Building Building { get; set; } = null!;
         public ICollection<Course> Courses { get; set; } = new List<Course>();
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+        public ICollection<RoomEntryRequest> RoomEntryRequests { get; set; } = new List<RoomEntryRequest>();
     }
 }

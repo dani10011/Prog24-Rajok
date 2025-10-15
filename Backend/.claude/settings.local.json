@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "mcp__ide__getDiagnostics",
-      "Read(//c/Users/Bendi/Desktop/Prog24/Prog24-Rajok/**)"
+      "Read(//c/Users/Bendi/Desktop/Prog24/Prog24-Rajok/**)",
+      "Bash(dotnet build:*)"
     ],
     "deny": [],
     "ask": []

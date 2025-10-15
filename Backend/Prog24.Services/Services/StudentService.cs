@@ -30,6 +30,7 @@ namespace Prog24.Services.Services
             {
                 UserId = student.User_Id,
                 Name = student.User.Name,
+                NeptunCode = student.User.Neptun_Code,
                 Email = student.User.Email,
                 Gender = student.Gender,
                 MajorId = student.Major_Id,

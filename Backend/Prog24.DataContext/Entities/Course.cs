@@ -26,5 +26,6 @@ namespace Prog24.DataContext.Entities
         public Room Room { get; set; } = null!;
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
         public ICollection<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
+        public ICollection<RoomEntryRequest> RoomEntryRequests { get; set; } = new List<RoomEntryRequest>();
     }
 }

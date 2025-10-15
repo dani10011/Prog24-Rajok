@@ -22,5 +22,19 @@ namespace Prog24.WebAPI.Controllers
             var Courseies = await _CourseService.GetCourses();
             return Ok(Courseies);
         }
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetCoursesByUserId(int userId)
+        {
+            try
+            {
+                var courses = await _CourseService.GetCoursesByUserId(userId);
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

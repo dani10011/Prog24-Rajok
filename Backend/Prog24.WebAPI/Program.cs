@@ -49,6 +49,7 @@ namespace Prog24.WebAPI
             builder.Services.AddScoped<IMajorService, MajorService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
+            builder.Services.AddScoped<IRoomEntryRequestService, RoomEntryRequestService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IStudentService, StudentService>();
             builder.Services.AddScoped<ISubjectService, SubjectService>();

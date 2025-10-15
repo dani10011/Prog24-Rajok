@@ -19,6 +19,7 @@
     <string name="error_invalid_credentials">Érvénytelen email vagy jelszó</string>
     <string name="error_network_failure">Hálózati hiba</string>
     <string name="error_unknown">Hiba történt</string>
+    <string name="error_admin_not_allowed">Az adminisztrátorok nem férhetnek hozzá ehhez az alkalmazáshoz</string>
     <string name="success_login">Sikeres bejelentkezés!</string>
 
     <!-- NFC Szkenner Képernyő -->
@@ -32,6 +33,13 @@
     <string name="nfc_enable_message">Kérlek engedélyezd az NFC-t a készülék beállításaiban</string>
     <string name="nfc_success_message">API hívás sikeres!</string>
     <string name="nfc_error_message">API hívás sikertelen: %s</string>
+
+    <!-- Oktató Képernyő -->
+    <string name="instructor_title">Oktató Irányítópult</string>
+    <string name="instructor_subtitle">Diákbelépés Kezelése</string>
+    <string name="instructor_welcome">Üdvözlünk, Oktató!</string>
+    <string name="instructor_let_in_students">Diákok Beengedése</string>
+    <string name="instructor_coming_soon">A diákbelépés kezelése hamarosan elérhető</string>
 
     <!-- Közös -->
     <string name="toggle_dark_mode">Sötét Mód Váltása</string>

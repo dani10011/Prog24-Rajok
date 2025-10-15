@@ -16,17 +16,48 @@ data class LoginRequest(
 
 /**
  * Login response model
+ * Expected response format:
+ * {
+ *   "userId": 2,
+ *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ * }
+ *
+ * @param userId User's unique identifier
  * @param token JWT Bearer token for authenticated requests
- * @param email User's email
- * @param role User's role (optional)
  */
 data class LoginResponse(
-    val token: String? = null,
-    val email: String? = null,
-    val role: String? = null,
-    val message: String? = null,
-    val success: Boolean = false
+    val userId: Int,
+    val token: String
 )
+
+/**
+ * User information model from /api/User/GetUserInfo
+ * @param userId User's unique identifier
+ * @param roleId User's role: 1 = Admin, 2 = Instructor, 3 = Student
+ * @param name User's full name
+ * @param email User's email address
+ * @param neptunCode Student/instructor Neptun code (optional)
+ */
+data class UserInfo(
+    val userId: Int,
+    val roleId: Int,
+    val name: String? = null,
+    val email: String? = null,
+    val neptunCode: String? = null
+)
+
+/**
+ * User roles enum
+ */
+enum class UserRole(val id: Int) {
+    ADMIN(1),
+    INSTRUCTOR(2),
+    STUDENT(3);
+
+    companion object {
+        fun fromId(id: Int): UserRole? = values().find { it.id == id }
+    }
+}
 
 /**
  * Generic API error response

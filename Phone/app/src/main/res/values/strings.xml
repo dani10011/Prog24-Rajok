@@ -19,6 +19,7 @@
     <string name="error_invalid_credentials">Invalid email or password</string>
     <string name="error_network_failure">Network error</string>
     <string name="error_unknown">An error occurred</string>
+    <string name="error_admin_not_allowed">Administrators cannot access this app</string>
     <string name="success_login">Login successful!</string>
 
     <!-- NFC Scanner Screen -->
@@ -32,6 +33,13 @@
     <string name="nfc_enable_message">Please enable NFC in your device settings</string>
     <string name="nfc_success_message">API call successful!</string>
     <string name="nfc_error_message">API call failed: %s</string>
+
+    <!-- Instructor Screen -->
+    <string name="instructor_title">Instructor Dashboard</string>
+    <string name="instructor_subtitle">Manage Student Entry</string>
+    <string name="instructor_welcome">Welcome, Instructor!</string>
+    <string name="instructor_let_in_students">Let Students In</string>
+    <string name="instructor_coming_soon">Student entry management coming soon</string>
 
     <!-- Common -->
     <string name="toggle_dark_mode">Toggle Dark Mode</string>

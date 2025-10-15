@@ -12,6 +12,7 @@ object Config {
     object Endpoints {
         const val LOGIN = "$BASE_URL/api/Auth/Login"
         const val REGISTER = "$BASE_URL/api/Auth/Register"
+        const val GET_USER_INFO = "$BASE_URL/api/User/GetUserInfo"
         // Add more endpoints as needed
     }
 }

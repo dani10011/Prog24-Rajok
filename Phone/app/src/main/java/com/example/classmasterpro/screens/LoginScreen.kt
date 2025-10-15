@@ -31,8 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.activity.ComponentActivity
 import com.example.classmasterpro.R
+import com.example.classmasterpro.models.UserRole
 import com.example.classmasterpro.ui.theme.*
 import com.example.classmasterpro.utils.ApiHelper
+import com.example.classmasterpro.utils.AuthPreferences
 import com.example.classmasterpro.utils.LanguageHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -40,7 +42,7 @@ import java.io.IOException
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (roleId: Int) -> Unit,
     onShowToast: (String) -> Unit,
     isDarkMode: Boolean,
     onToggleDarkMode: () -> Unit
@@ -87,27 +89,42 @@ fun LoginScreen(
         scope.launch {
             try {
                 // Call real authentication API
-                val response = ApiHelper.login(email, password)
+                val loginResponse = ApiHelper.login(email, password)
 
-                if (response.success && !response.token.isNullOrEmpty()) {
+                // Fetch user information to get role
+                val userInfo = ApiHelper.getUserInfo(loginResponse.userId, loginResponse.token)
+
+                // Check if user is admin (roleId = 1) - admins cannot login to the app
+                if (userInfo.roleId == UserRole.ADMIN.id) {
                     isLoading = false
-                    onShowToast(context.getString(R.string.success_login))
-                    // TODO: Store token in SharedPreferences for future authenticated requests
-                    // For now, just proceed to next screen
-                    onLoginSuccess()
-                } else {
-                    isLoading = false
-                    errorMessage = response.message ?: context.getString(R.string.error_invalid_credentials)
-                    onShowToast(errorMessage)
+                    errorMessage = context.getString(R.string.error_admin_not_allowed)
+                    onShowToast(context.getString(R.string.error_admin_not_allowed))
+                    return@launch
                 }
+
+                // Save authentication data to SharedPreferences
+                AuthPreferences.saveAuthData(
+                    context = context,
+                    userId = loginResponse.userId,
+                    token = loginResponse.token,
+                    roleId = userInfo.roleId,
+                    email = email
+                )
+
+                // Login successful - pass roleId to navigation
+                isLoading = false
+                onShowToast(context.getString(R.string.success_login))
+                onLoginSuccess(userInfo.roleId)
             } catch (e: IOException) {
                 isLoading = false
-                errorMessage = context.getString(R.string.error_network_failure)
-                onShowToast("${context.getString(R.string.error_network_failure)}: ${e.message}")
+                val errorMsg = e.message ?: context.getString(R.string.error_network_failure)
+                errorMessage = errorMsg
+                onShowToast(errorMsg)
             } catch (e: Exception) {
                 isLoading = false
-                errorMessage = context.getString(R.string.error_unknown)
-                onShowToast("${context.getString(R.string.error_unknown)}: ${e.message}")
+                val errorMsg = e.message ?: context.getString(R.string.error_unknown)
+                errorMessage = errorMsg
+                onShowToast(errorMsg)
             }
         }
     }

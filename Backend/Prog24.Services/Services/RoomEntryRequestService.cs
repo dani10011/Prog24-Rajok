@@ -59,9 +59,31 @@ namespace Prog24.Services.Services
 
             if (existingAttendance != null)
             {
-                failureReason = "Student is already checked into this class";
-                await LogAttempt(student.User_Id, activeCourse.Id, request.RoomId, currentTime, "Entry", false, failureReason, request.NfcId);
-                throw new Exception(failureReason);
+                // Student is already checked in, so this is an EXIT scan
+                existingAttendance.Exit_Time = currentTime;
+                _dbContext.Student_class_attendance.Update(existingAttendance);
+
+                // Log successful exit
+                await LogAttempt(student.User_Id, activeCourse.Id, request.RoomId, currentTime, "Exit", true, null, request.NfcId);
+
+                // Create auto-approved exit request
+                var exitRequest = new RoomEntryRequest
+                {
+                    Student_Id = student.User_Id,
+                    Instructor_Id = activeCourse.Instructor_Id,
+                    Room_Id = request.RoomId,
+                    Course_Id = activeCourse.Id,
+                    Request_Time = currentTime,
+                    Status = "Approved",
+                    Reason = request.Reason ?? "Exit",
+                    Response_Time = currentTime
+                };
+
+                _dbContext.Room_entry_request.Add(exitRequest);
+                await _dbContext.SaveChangesAsync();
+
+                return await GetRequestById(exitRequest.Id)
+                    ?? throw new Exception("Failed to retrieve exit request");
             }
 
             // Create attendance record

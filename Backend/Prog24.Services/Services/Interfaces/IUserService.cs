@@ -10,7 +10,7 @@ namespace Prog24.Services.Services.Interfaces
 {
     public interface IUserService
     {
-        public Task<List<User>> GetUsers();
-        public Task<UserInfoResponse?> GetUserInfo(int userId); 
+        public Task<List<UserInfoResponse>> GetUsers();
+        public Task<UserInfoResponse?> GetUserInfo(int userId);
     }
 }

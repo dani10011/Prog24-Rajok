@@ -39,5 +39,77 @@ namespace Prog24.Services.Services
 
             return studentResponses;
         }
+
+        public async Task<List<StudentInstructorResponse>> GetStudentInstructors(int studentUserId)
+        {
+            // Get all courses the student is enrolled in
+            var courseEnrollments = await _dbContext.Course_student
+                .Where(cs => cs.Student_Id == studentUserId)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Subject)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Instructor)
+                    .ThenInclude(i => i.User)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Room)
+                .ToListAsync();
+
+            // Group courses by instructor
+            var instructorGroups = courseEnrollments
+                .GroupBy(cs => cs.Course.Instructor_Id)
+                .Select(group =>
+                {
+                    var firstCourse = group.First().Course;
+                    return new StudentInstructorResponse
+                    {
+                        InstructorId = firstCourse.Instructor_Id,
+                        InstructorName = firstCourse.Instructor.User.Name,
+                        Courses = group.Select(cs => new InstructorCourseInfo
+                        {
+                            CourseId = cs.Course.Id,
+                            SubjectName = cs.Course.Subject.Name,
+                            StartTime = cs.Course.Start_Time,
+                            EndTime = cs.Course.End_Time,
+                            RoomNumber = cs.Course.Room.Room_Number
+                        }).ToList()
+                    };
+                })
+                .ToList();
+
+            return instructorGroups;
+        }
+
+        public async Task<List<TimetableItemResponse>> GetStudentCourseLocations(int studentUserId)
+        {
+            // Get all courses the student is enrolled in
+            var studentCourses = await _dbContext.Course_student
+                .Where(cs => cs.Student_Id == studentUserId)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Subject)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Room)
+                        .ThenInclude(r => r.Building)
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Instructor)
+                        .ThenInclude(i => i.User)
+                .Select(cs => cs.Course)
+                .ToListAsync();
+
+            // Map to TimetableItemResponse
+            var courseLocations = studentCourses.Select(course => new TimetableItemResponse
+            {
+                CourseId = course.Id,
+                SubjectName = course.Subject.Name,
+                StartTime = course.Start_Time,
+                EndTime = course.End_Time,
+                DayOfWeek = course.Start_Time.DayOfWeek.ToString(),
+                RoomNumber = course.Room.Room_Number,
+                BuildingName = course.Room.Building.Name,
+                InstructorName = course.Instructor.User.Name,
+                StudentCount = null
+            }).OrderBy(t => t.StartTime).ToList();
+
+            return courseLocations;
+        }
     }
 }

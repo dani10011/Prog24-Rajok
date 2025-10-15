@@ -19,9 +19,21 @@ namespace Prog24.Services.Services
             _dbContext = dbContext;
         }
 
-        public async Task<List<User>> GetUsers()
+        public async Task<List<UserInfoResponse>> GetUsers()
         {
-            var result = await _dbContext.User.ToListAsync();
+            var users = await _dbContext.User
+                .Include(u => u.Role)
+                .ToListAsync();
+
+            var result = users.Select(user => new UserInfoResponse
+            {
+                Id = user.Id,
+                Name = user.Name,
+                RoleId = user.Role_Id,
+                RoleName = user.Role.Role_Name,
+                Email = user.Email
+            }).ToList();
+
             return result;
         }
 

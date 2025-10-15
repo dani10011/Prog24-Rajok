@@ -11,5 +11,7 @@ namespace Prog24.Services.Services.Interfaces
     public interface IStudentService
     {
         public Task<List<StudentResponse>> GetStudents();
+        public Task<List<StudentInstructorResponse>> GetStudentInstructors(int studentUserId);
+        public Task<List<TimetableItemResponse>> GetStudentCourseLocations(int studentUserId);
     }
 }

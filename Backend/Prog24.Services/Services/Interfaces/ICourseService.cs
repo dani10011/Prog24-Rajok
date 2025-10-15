@@ -12,5 +12,6 @@ namespace Prog24.Services.Services.Interfaces
     {
         public Task<List<Course>> GetCourses();
         public Task<List<CourseResponse>> GetCoursesByUserId(int userId);
+        public Task<CreateCourseResponse> CreateCourse(CreateCourseRequest request);
     }
 }

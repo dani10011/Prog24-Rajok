@@ -39,6 +39,7 @@ namespace Prog24.Services.Services
 
             // Find the active course in the specified room
             var activeCourse = await _dbContext.Course
+                .Include(c => c.Subject)
                 .Where(c => c.Room_Id == request.RoomId
                     && c.Start_Time <= currentTime
                     && c.End_Time >= currentTime)
@@ -51,6 +52,9 @@ namespace Prog24.Services.Services
                 throw new Exception(failureReason);
             }
 
+            // Check if this is a ZH course (used for both entry and exit logic)
+            bool isZHCourse = IsZHCourse(activeCourse);
+
             // Check if student is already in the class
             var existingAttendance = await _dbContext.Student_class_attendance
                 .FirstOrDefaultAsync(sca => sca.Student_Id == student.User_Id
@@ -60,13 +64,21 @@ namespace Prog24.Services.Services
             if (existingAttendance != null)
             {
                 // Student is already checked in, so this is an EXIT scan
-                existingAttendance.Exit_Time = currentTime;
-                _dbContext.Student_class_attendance.Update(existingAttendance);
+                // Check if this is an early exit from a ZH course
+                bool isEarlyExit = currentTime < activeCourse.End_Time.AddMinutes(-15);
+                bool requiresApprovalBeforeExit = isZHCourse && isEarlyExit;
+
+                // Only update Exit_Time if not an early exit from ZH course
+                if (!requiresApprovalBeforeExit)
+                {
+                    existingAttendance.Exit_Time = currentTime;
+                    _dbContext.Student_class_attendance.Update(existingAttendance);
+                }
 
                 // Log successful exit
                 await LogAttempt(student.User_Id, activeCourse.Id, request.RoomId, currentTime, "Exit", true, null, request.NfcId);
 
-                // Create auto-approved exit request
+                // Create exit request - pending if requires approval, approved otherwise
                 var exitRequest = new RoomEntryRequest
                 {
                     Student_Id = student.User_Id,
@@ -74,9 +86,11 @@ namespace Prog24.Services.Services
                     Room_Id = request.RoomId,
                     Course_Id = activeCourse.Id,
                     Request_Time = currentTime,
-                    Status = "Approved",
-                    Reason = request.Reason ?? "Exit",
-                    Response_Time = currentTime
+                    Status = requiresApprovalBeforeExit ? "Pending" : "Approved",
+                    Reason = requiresApprovalBeforeExit
+                        ? $"{request.Reason ?? "Exit"} (Early exit - requires instructor approval)"
+                        : (request.Reason ?? "Exit"),
+                    Response_Time = requiresApprovalBeforeExit ? null : currentTime
                 };
 
                 _dbContext.Room_entry_request.Add(exitRequest);
@@ -86,17 +100,24 @@ namespace Prog24.Services.Services
                     ?? throw new Exception("Failed to retrieve exit request");
             }
 
-            // Create attendance record
-            var attendance = new StudentClassAttendance
-            {
-                Student_Id = student.User_Id,
-                Course_Id = activeCourse.Id,
-                Room_Id = request.RoomId,
-                Entry_Time = currentTime,
-                Exit_Time = null
-            };
+            // Check if this is a late entry to a ZH course
+            bool isLateEntry = currentTime > activeCourse.Start_Time.AddMinutes(10);
+            bool requiresApprovalBeforeEntry = isZHCourse && isLateEntry;
 
-            _dbContext.Student_class_attendance.Add(attendance);
+            // Only create attendance record if not a late entry to ZH course
+            if (!requiresApprovalBeforeEntry)
+            {
+                var attendance = new StudentClassAttendance
+                {
+                    Student_Id = student.User_Id,
+                    Course_Id = activeCourse.Id,
+                    Room_Id = request.RoomId,
+                    Entry_Time = currentTime,
+                    Exit_Time = null
+                };
+
+                _dbContext.Student_class_attendance.Add(attendance);
+            }
 
             // Create room entry request
             var roomEntryRequest = new RoomEntryRequest
@@ -107,7 +128,9 @@ namespace Prog24.Services.Services
                 Course_Id = activeCourse.Id,
                 Request_Time = currentTime,
                 Status = "Pending",
-                Reason = request.Reason
+                Reason = requiresApprovalBeforeEntry
+                    ? $"{request.Reason ?? "Entry"} (Late entry - requires instructor approval)"
+                    : request.Reason
             };
 
             _dbContext.Room_entry_request.Add(roomEntryRequest);
@@ -138,9 +161,17 @@ namespace Prog24.Services.Services
             _dbContext.Student_class_log.Add(log);
         }
 
+        private bool IsZHCourse(Course course)
+        {
+            return course.Subject?.Name?.EndsWith(" ZH", StringComparison.OrdinalIgnoreCase) ?? false;
+        }
+
         public async Task<RoomEntryRequestResponse> UpdateRequestStatus(UpdateRoomEntryRequestDto update)
         {
             var request = await _dbContext.Room_entry_request
+                .Include(r => r.Student)
+                .Include(r => r.Course)
+                .Include(r => r.Room)
                 .FirstOrDefaultAsync(r => r.Id == update.RequestId);
 
             if (request == null)
@@ -155,6 +186,37 @@ namespace Prog24.Services.Services
 
             request.Status = update.Status;
             request.Response_Time = DateTime.UtcNow;
+
+            // If approved, handle the attendance record
+            if (update.Status == "Approved")
+            {
+                // Check if there's an existing active attendance record
+                var existingAttendance = await _dbContext.Student_class_attendance
+                    .FirstOrDefaultAsync(sca => sca.Student_Id == request.Student_Id
+                        && sca.Course_Id == request.Course_Id
+                        && sca.Exit_Time == null);
+
+                if (existingAttendance != null)
+                {
+                    // This is an exit request - update Exit_Time
+                    existingAttendance.Exit_Time = request.Request_Time;
+                    _dbContext.Student_class_attendance.Update(existingAttendance);
+                }
+                else
+                {
+                    // This is an entry request - create attendance record
+                    var attendance = new StudentClassAttendance
+                    {
+                        Student_Id = request.Student_Id,
+                        Course_Id = request.Course_Id ?? 0,
+                        Room_Id = request.Room_Id,
+                        Entry_Time = request.Request_Time,
+                        Exit_Time = null
+                    };
+
+                    _dbContext.Student_class_attendance.Add(attendance);
+                }
+            }
 
             await _dbContext.SaveChangesAsync();
 

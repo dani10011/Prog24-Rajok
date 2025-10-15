@@ -398,7 +398,7 @@ export class RoomsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Format Date object to ISO string for API
+   * Format Date object to ISO string for API (preserving local time)
    */
   private formatDateTimeForApi(date: Date): string {
     if (!date) return '';
@@ -406,7 +406,15 @@ export class RoomsComponent implements OnInit, OnDestroy {
     // Ensure date is a Date object
     const dateObj = date instanceof Date ? date : new Date(date);
 
-    // Return ISO string format
-    return dateObj.toISOString();
+    // Format as ISO string WITHOUT timezone conversion
+    // This preserves the user-selected local time exactly as entered
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 }

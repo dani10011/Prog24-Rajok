@@ -11,3 +11,11 @@ export interface User {
   createdAt?: Date;
   lastLogin?: Date;
 }
+
+export interface UserListItem {
+  id: number;
+  name: string;
+  roleId: number;
+  roleName: string;
+  email: string;
+}

@@ -7,6 +7,7 @@ export interface Room {
   building?: any;
   courses?: any[];
   reservations?: any[];
+  roomEntryRequests?: any[];
 }
 
 export interface RoomsResponse {

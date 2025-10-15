@@ -10,6 +10,9 @@ import { ScheduleComponent } from './components/schedule/schedule.component';
 import { StudentsListComponent } from './components/students-list/students-list.component';
 import { RoomsComponent } from './components/rooms/rooms.component';
 import { CoursesComponent } from './components/courses/courses.component';
+import { UsersManagementComponent } from './components/users-management/users-management.component';
+import { RoomsManagementComponent } from './components/rooms-management/rooms-management.component';
+import { SubjectsManagementComponent } from './components/subjects-management/subjects-management.component';
 
 // Guards
 import { AuthGuard } from './guards/auth.guard';
@@ -73,6 +76,27 @@ const routes: Routes = [
     path: 'courses',
     component: CoursesComponent,
     canActivate: [AuthGuard]
+  },
+  // Users Management (protected route for admins only)
+  {
+    path: 'users-management',
+    component: UsersManagementComponent,
+    canActivate: [RoleGuard],
+    data: { allowedRoles: [1] }
+  },
+  // Rooms Management (protected route for admins only)
+  {
+    path: 'rooms-management',
+    component: RoomsManagementComponent,
+    canActivate: [RoleGuard],
+    data: { allowedRoles: [1] }
+  },
+  // Subjects Management (protected route for admins only)
+  {
+    path: 'subjects-management',
+    component: SubjectsManagementComponent,
+    canActivate: [RoleGuard],
+    data: { allowedRoles: [1] }
   },
   // Wildcard route - redirect to login
   {

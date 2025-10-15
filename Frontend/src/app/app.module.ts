@@ -47,6 +47,9 @@ import { ScheduleComponent } from './components/schedule/schedule.component';
 import { StudentsListComponent } from './components/students-list/students-list.component';
 import { RoomsComponent } from './components/rooms/rooms.component';
 import { CoursesComponent } from './components/courses/courses.component';
+import { UsersManagementComponent } from './components/users-management/users-management.component';
+import { RoomsManagementComponent } from './components/rooms-management/rooms-management.component';
+import { SubjectsManagementComponent } from './components/subjects-management/subjects-management.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +62,10 @@ import { CoursesComponent } from './components/courses/courses.component';
     ScheduleComponent,
     StudentsListComponent,
     RoomsComponent,
-    CoursesComponent
+    CoursesComponent,
+    UsersManagementComponent,
+    RoomsManagementComponent,
+    SubjectsManagementComponent
   ],
   imports: [
     BrowserModule,

@@ -235,172 +235,171 @@
   <!-- Booking Modal -->
   <p-dialog
     [(visible)]="displayBookingModal"
-    [header]="'Terem foglalása - ' + (selectedRoom?.room_Number || '')"
+    [header]="'Terem foglalása'"
     [modal]="true"
-    [style]="{width: '700px'}"
+    [style]="{width: '600px'}"
     [draggable]="false"
     [resizable]="false"
     styleClass="booking-dialog">
 
     <ng-template pTemplate="content">
       <div class="booking-modal-content" *ngIf="selectedRoom">
-        <!-- Room Details -->
-        <div class="room-details-section">
-          <h4><i class="pi pi-info-circle"></i> Terem adatai</h4>
-          <div class="details-grid">
-            <div class="detail-item">
-              <span class="detail-label">Terem száma:</span>
-              <span class="detail-value">{{ selectedRoom.room_Number }}</span>
+        <!-- Room Info Panel -->
+        <p-panel styleClass="room-info-panel">
+          <ng-template pTemplate="header">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-building" style="color: var(--primary-color); font-size: 1.25rem;"></i>
+              <span class="font-semibold">{{ selectedRoom.room_Number }}</span>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Épület:</span>
-              <span class="detail-value">Épület {{ selectedRoom.building_Id }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Férőhely:</span>
-              <span class="detail-value">{{ selectedRoom.capacity }} fő</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Típus:</span>
-              <span class="detail-value">{{ getRoomTypeLabel(selectedRoom) }}</span>
-            </div>
+          </ng-template>
+          <div class="flex gap-4">
+            <p-chip>
+              <span class="flex align-items-center gap-2">
+                <i class="pi pi-users"></i>
+                {{ selectedRoom.capacity }} fő
+              </span>
+            </p-chip>
+            <p-chip>
+              <span class="flex align-items-center gap-2">
+                <i class="pi pi-building"></i>
+                Épület {{ selectedRoom.building_Id }}
+              </span>
+            </p-chip>
+            <p-chip [styleClass]="selectedRoom.is_Computer_Room ? 'p-chip-success' : 'p-chip-info'">
+              <span class="flex align-items-center gap-2">
+                <i class="pi pi-desktop"></i>
+                {{ getRoomTypeLabel(selectedRoom) }}
+              </span>
+            </p-chip>
           </div>
-        </div>
+        </p-panel>
+
+        <p-divider></p-divider>
+
+        <!-- Error Message -->
+        <p-message *ngIf="bookingError" severity="error" [text]="bookingError" styleClass="mb-3"></p-message>
 
         <!-- Booking Form -->
-        <div class="booking-form-section">
-          <h4><i class="pi pi-calendar"></i> Foglalás részletei</h4>
-
-          <!-- Debug Info (remove in production) -->
-          <div class="debug-info" style="background: #f0f0f0; padding: 0.5rem; margin-bottom: 1rem; border-radius: 4px; font-size: 0.85rem;">
-            <strong>Debug Info:</strong><br>
-            Órák száma: {{ instructorCourses.length }}<br>
-            Tantárgyak száma: {{ subjects.length }}<br>
-            Loading órák: {{ loadingCourses }}<br>
-            Loading tantárgyak: {{ loadingSubjects }}
+        <form [formGroup]="bookingForm">
+          <!-- Course Selection -->
+          <div class="field mb-4">
+            <label for="course" class="block mb-2 font-semibold">
+              <i class="pi pi-calendar-plus mr-2"></i>
+              Válasszon órát *
+            </label>
+            <p-dropdown
+              id="course"
+              formControlName="courseId"
+              [options]="instructorCourses"
+              optionLabel="displayName"
+              optionValue="courseId"
+              placeholder="Válassza ki melyik órájára foglalja"
+              [filter]="true"
+              filterBy="displayName"
+              [showClear]="true"
+              [disabled]="loadingCourses"
+              styleClass="w-full"
+              (onChange)="onCourseSelected($event)">
+              <ng-template let-course pTemplate="item">
+                <div class="p-2">
+                  <div class="font-semibold text-primary">{{ course.subjectName }}</div>
+                  <div class="text-sm text-600">{{ course.dayOfWeek }}, {{ course.startTime }} - {{ course.endTime }}</div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+            <small class="block mt-1 text-500" *ngIf="loadingCourses">
+              <i class="pi pi-spin pi-spinner mr-1"></i> Órák betöltése...
+            </small>
+            <small class="block mt-1 text-primary font-medium" *ngIf="bookingForm.get('courseId')?.value">
+              <i class="pi pi-check-circle mr-1"></i> {{ getSelectedCourseName() }}
+            </small>
           </div>
 
-          <!-- Error Message -->
-          <div *ngIf="bookingError" class="error-message">
-            <p-message severity="error" [text]="bookingError"></p-message>
+          <!-- Time Fields -->
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <div class="field">
+                <label for="startTime" class="block mb-2 font-semibold">
+                  <i class="pi pi-clock mr-2"></i>
+                  Kezdés *
+                </label>
+                <p-calendar
+                  id="startTime"
+                  formControlName="startTime"
+                  [showTime]="true"
+                  [showSeconds]="false"
+                  dateFormat="yy-mm-dd"
+                  hourFormat="24"
+                  placeholder="yyyy-mm-dd hh:mm"
+                  [showIcon]="true"
+                  styleClass="w-full">
+                </p-calendar>
+              </div>
+            </div>
+            <div class="col-12 md:col-6">
+              <div class="field">
+                <label for="endTime" class="block mb-2 font-semibold">
+                  <i class="pi pi-clock mr-2"></i>
+                  Befejezés *
+                </label>
+                <p-calendar
+                  id="endTime"
+                  formControlName="endTime"
+                  [showTime]="true"
+                  [showSeconds]="false"
+                  dateFormat="yy-mm-dd"
+                  hourFormat="24"
+                  placeholder="yyyy-mm-dd hh:mm"
+                  [showIcon]="true"
+                  styleClass="w-full">
+                </p-calendar>
+              </div>
+            </div>
           </div>
 
-          <form [formGroup]="bookingForm" class="booking-form">
-            <!-- Course Selection -->
-            <div class="form-field">
-              <label for="course">
-                <i class="pi pi-calendar-plus"></i>
-                Melyik órájára foglalja? *
-              </label>
-              <p-dropdown
-                id="course"
-                formControlName="courseId"
-                [options]="instructorCourses"
-                optionLabel="displayName"
-                optionValue="courseId"
-                placeholder="Válasszon egy órát"
-                [filter]="true"
-                filterBy="displayName"
-                [showClear]="true"
-                [disabled]="loadingCourses"
-                styleClass="w-full"
-                (onChange)="onCourseSelected($event)">
-                <ng-template let-course pTemplate="item">
-                  <div class="course-option">
-                    <div class="course-name">{{ course.subjectName }}</div>
-                    <div class="course-time">{{ course.dayOfWeek }}, {{ course.startTime }} - {{ course.endTime }}</div>
-                  </div>
-                </ng-template>
-              </p-dropdown>
-              <small class="loading-indicator" *ngIf="loadingCourses">
-                <i class="pi pi-spin pi-spinner"></i> Órák betöltése...
-              </small>
-              <small class="field-help" *ngIf="bookingForm.get('courseId')?.value">
-                Kiválasztott tantárgy: <strong>{{ getSelectedCourseName() }}</strong>
-              </small>
-            </div>
+          <p-message severity="info" styleClass="mt-2 mb-3">
+            <span class="text-sm">Az időpontok automatikusan kitöltődnek óra kiválasztásakor</span>
+          </p-message>
 
-            <!-- Start Time -->
-            <div class="form-field">
-              <label for="startTime">
-                <i class="pi pi-clock"></i>
-                Kezdési időpont *
-              </label>
-              <p-calendar
-                id="startTime"
-                formControlName="startTime"
-                [showTime]="true"
-                [showSeconds]="false"
-                dateFormat="yy-mm-dd"
-                hourFormat="24"
-                placeholder="Válasszon kezdési időpontot"
-                [showIcon]="true"
-                styleClass="w-full">
-              </p-calendar>
-              <small class="field-help">
-                Automatikusan kitöltődik óra kiválasztásakor
-              </small>
-            </div>
-
-            <!-- End Time -->
-            <div class="form-field">
-              <label for="endTime">
-                <i class="pi pi-clock"></i>
-                Befejezési időpont *
-              </label>
-              <p-calendar
-                id="endTime"
-                formControlName="endTime"
-                [showTime]="true"
-                [showSeconds]="false"
-                dateFormat="yy-mm-dd"
-                hourFormat="24"
-                placeholder="Válasszon befejezési időpontot"
-                [showIcon]="true"
-                styleClass="w-full">
-              </p-calendar>
-              <small class="field-help">
-                Automatikusan kitöltődik óra kiválasztásakor
-              </small>
-            </div>
-
-            <!-- Name Suffix (Optional) -->
-            <div class="form-field">
-              <label for="nameSuffix">
-                <i class="pi pi-tag"></i>
-                Név utótag (opcionális)
-              </label>
-              <input
-                pInputText
-                id="nameSuffix"
-                formControlName="nameSuffix"
-                placeholder="pl. A csoport, Labor"
-                class="w-full" />
-              <small class="field-help">
-                Opcionális megkülönböztető név a kurzushoz
-              </small>
-            </div>
-          </form>
-        </div>
+          <!-- Name Suffix (Optional) -->
+          <div class="field mb-0">
+            <label for="nameSuffix" class="block mb-2 font-semibold">
+              <i class="pi pi-tag mr-2"></i>
+              Név utótag (opcionális)
+            </label>
+            <input
+              pInputText
+              id="nameSuffix"
+              formControlName="nameSuffix"
+              placeholder="pl. A csoport, Labor"
+              class="w-full" />
+            <small class="block mt-1 text-500">
+              Opcionális megkülönböztető név a kurzushoz
+            </small>
+          </div>
+        </form>
       </div>
     </ng-template>
 
     <ng-template pTemplate="footer">
-      <button pButton type="button"
-              label="Mégse"
-              icon="pi pi-times"
-              class="p-button-text p-button-secondary"
-              (click)="hideBookingModal()"
-              [disabled]="submittingBooking">
-      </button>
-      <button pButton type="button"
-              label="Foglalás"
-              icon="pi pi-check"
-              class="p-button-success"
-              (click)="confirmBooking()"
-              [disabled]="bookingForm.invalid || submittingBooking"
-              [loading]="submittingBooking">
-      </button>
+      <div class="flex gap-2 justify-content-end">
+        <p-button
+          label="Mégse"
+          icon="pi pi-times"
+          [text]="true"
+          severity="secondary"
+          (onClick)="hideBookingModal()"
+          [disabled]="submittingBooking">
+        </p-button>
+        <p-button
+          label="Foglalás megerősítése"
+          icon="pi pi-check"
+          severity="success"
+          (onClick)="confirmBooking()"
+          [disabled]="bookingForm.invalid || submittingBooking"
+          [loading]="submittingBooking">
+        </p-button>
+      </div>
     </ng-template>
   </p-dialog>
 </div>

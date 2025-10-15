@@ -369,13 +369,12 @@
 // Booking Modal Styles
 ::ng-deep .booking-dialog {
   .p-dialog-header {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--primary-color);
     color: white;
-    border-radius: 12px 12px 0 0;
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem;
 
     .p-dialog-title {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 600;
     }
 
@@ -389,177 +388,98 @@
   }
 
   .p-dialog-content {
-    padding: 2rem;
+    padding: 1.5rem;
     background: var(--surface-card);
   }
 
   .p-dialog-footer {
     padding: 1rem 1.5rem;
-    background: var(--surface-section);
+    background: var(--surface-ground);
     border-top: 1px solid var(--surface-border);
-    border-radius: 0 0 12px 12px;
+  }
+
+  // Room info panel styling
+  .room-info-panel {
+    ::ng-deep .p-panel-header {
+      background: var(--surface-section);
+      border: 1px solid var(--surface-border);
+      padding: 0.75rem 1rem;
+    }
+
+    ::ng-deep .p-panel-content {
+      padding: 1rem;
+      background: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      border-top: none;
+    }
+  }
+
+  // Chip styling
+  ::ng-deep .p-chip {
+    background: var(--surface-section);
+    color: var(--text-color);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+
+    &.p-chip-success {
+      background: var(--green-50);
+      color: var(--green-700);
+    }
+
+    &.p-chip-info {
+      background: var(--blue-50);
+      color: var(--blue-700);
+    }
+
+    i {
+      font-size: 1rem;
+      color: inherit;
+    }
   }
 }
 
 .booking-modal-content {
-  .room-details-section,
-  .booking-form-section {
-    margin-bottom: 1.5rem;
-
-    h4 {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      color: var(--text-color);
-      font-size: 1.1rem;
-      font-weight: 600;
+  // PrimeNG Form Field Utilities
+  .field {
+    label {
+      font-size: 0.95rem;
 
       i {
         color: var(--primary-color);
-        font-size: 1.2rem;
       }
     }
   }
 
-  .details-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    background: var(--surface-section);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--surface-border);
-
-    .detail-item {
+  // Grid system compatibility
+  ::ng-deep {
+    .grid {
       display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
+      flex-wrap: wrap;
+      margin: -0.5rem;
 
-      .detail-label {
-        font-size: 0.85rem;
-        color: var(--text-color-secondary);
-        font-weight: 500;
+      .col-12 {
+        flex: 0 0 auto;
+        width: 100%;
+        padding: 0.5rem;
       }
 
-      .detail-value {
-        font-size: 1rem;
-        color: var(--text-color);
-        font-weight: 600;
-      }
-    }
-  }
-
-  .booking-form-section {
-    .error-message {
-      margin-bottom: 1.5rem;
-    }
-
-    .booking-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-
-      .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-
-        label {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-weight: 600;
-          color: var(--text-color);
-          font-size: 0.95rem;
-
-          i {
-            color: var(--primary-color);
-            font-size: 1rem;
-          }
-        }
-
-        .loading-indicator {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: var(--text-color-secondary);
-          font-size: 0.85rem;
-          font-style: italic;
-
-          i {
-            font-size: 1rem;
-          }
-        }
-
-        .field-help {
-          color: var(--text-color-secondary);
-          font-size: 0.85rem;
-          font-style: italic;
-          margin-top: 0.25rem;
-
-          strong {
-            color: var(--primary-color);
-            font-weight: 600;
-          }
-        }
-
-        ::ng-deep {
-          .p-dropdown,
-          .p-calendar,
-          .p-inputtext {
-            width: 100%;
-          }
-
-          .w-full {
-            width: 100%;
-          }
-
-          .p-calendar-w-btn {
-            width: 100%;
-
-            .p-inputtext {
-              width: 100%;
-            }
-          }
-
-          // Course dropdown custom item template
-          .course-option {
-            padding: 0.5rem 0;
-
-            .course-name {
-              font-weight: 600;
-              color: var(--text-color);
-              margin-bottom: 0.25rem;
-              font-size: 0.95rem;
-            }
-
-            .course-time {
-              font-size: 0.85rem;
-              color: var(--text-color-secondary);
-              display: flex;
-              align-items: center;
-              gap: 0.5rem;
-
-              &::before {
-                content: '\e924'; // pi-clock icon
-                font-family: 'primeicons';
-                font-size: 0.75rem;
-              }
-            }
-          }
+      .md\:col-6 {
+        @media (min-width: 768px) {
+          flex: 0 0 auto;
+          width: 50%;
         }
       }
     }
 
-    .info-text {
-      padding: 1rem;
-      background: var(--surface-section);
-      border-radius: 8px;
-      border: 1px dashed var(--surface-border);
-      color: var(--text-color-secondary);
-      font-style: italic;
-      margin: 0;
+    // Course dropdown custom styling
+    .p-dropdown-item {
+      .text-primary {
+        color: var(--primary-color) !important;
+      }
+
+      .text-600 {
+        color: var(--text-color-secondary) !important;
+      }
     }
   }
 }

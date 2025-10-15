@@ -21,6 +21,8 @@ import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
+import { DividerModule } from 'primeng/divider';
+import { ChipModule } from 'primeng/chip';
 import { CommonModule } from '@angular/common';
 
 // App Modules
@@ -91,7 +93,9 @@ import { SubjectsManagementComponent } from './components/subjects-management/su
     TagModule,
     DialogModule,
     CalendarModule,
-    DropdownModule
+    DropdownModule,
+    DividerModule,
+    ChipModule
   ],
   providers: [
     AuthService,

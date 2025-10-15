@@ -148,12 +148,16 @@ namespace Prog24.WebAPI.Controllers
         {
             try
             {
+                Console.WriteLine($"GetPendingRequestsForOngoingLecture called with instructorId: {instructorId}");
                 var requests = await _roomEntryRequestService.GetPendingRequestsForOngoingLecture(instructorId);
+                Console.WriteLine($"Found {requests.Count} pending requests");
                 return Ok(requests);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                Console.WriteLine($"Error in GetPendingRequestsForOngoingLecture: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
             }
         }
 

@@ -114,7 +114,8 @@ namespace Prog24.Services.Services
 
         public async Task<StudentCurrentLectureStatusResponse> GetCurrentLectureStatus(int studentUserId)
         {
-            var currentTime = DateTime.UtcNow;
+            var currentTime = DateTime.Now;
+            Console.WriteLine($"GetCurrentLectureStatus - studentUserId: {studentUserId}, currentTime: {currentTime}");
 
             // Find the student's current active course (enrolled + time matches)
             var currentCourse = await _dbContext.Course_student
@@ -131,23 +132,23 @@ namespace Prog24.Services.Services
                 .Where(c => c.Start_Time <= currentTime && c.End_Time >= currentTime)
                 .FirstOrDefaultAsync();
 
+            Console.WriteLine($"Current course found: {currentCourse != null} - {currentCourse?.Subject?.Name}");
+
             // If no current course, return empty response
             if (currentCourse == null)
             {
                 return new StudentCurrentLectureStatusResponse
                 {
-                    CourseId = null,
-                    SubjectName = null,
+                    IsInLecture = false,
+                    LectureId = null,
+                    CourseName = null,
+                    InstructorName = null,
                     RoomNumber = null,
                     BuildingName = null,
-                    InstructorName = null,
                     StartTime = null,
                     EndTime = null,
-                    IsInAttendance = false,
-                    EntryTime = null,
-                    HasPendingRequest = false,
-                    PendingRequestId = null,
-                    RequestReason = null
+                    AttendanceStatus = null,
+                    Message = "No active lecture at this time"
                 };
             }
 
@@ -165,20 +166,33 @@ namespace Prog24.Services.Services
                 .OrderByDescending(r => r.Request_Time)
                 .FirstOrDefaultAsync();
 
+            // Determine attendance status
+            string? attendanceStatus = null;
+            if (activeAttendance != null)
+            {
+                attendanceStatus = "Present";
+            }
+            else if (pendingRequest != null)
+            {
+                attendanceStatus = "Pending";
+            }
+            else
+            {
+                attendanceStatus = "Absent";
+            }
+
             return new StudentCurrentLectureStatusResponse
             {
-                CourseId = currentCourse.Id,
-                SubjectName = currentCourse.Subject.Name,
+                IsInLecture = true,
+                LectureId = currentCourse.Id,
+                CourseName = currentCourse.Subject.Name,
+                InstructorName = currentCourse.Instructor.User.Name,
                 RoomNumber = currentCourse.Room.Room_Number,
                 BuildingName = currentCourse.Room.Building.Name,
-                InstructorName = currentCourse.Instructor.User.Name,
-                StartTime = currentCourse.Start_Time,
-                EndTime = currentCourse.End_Time,
-                IsInAttendance = activeAttendance != null,
-                EntryTime = activeAttendance?.Entry_Time,
-                HasPendingRequest = pendingRequest != null,
-                PendingRequestId = pendingRequest?.Id,
-                RequestReason = pendingRequest?.Reason
+                StartTime = currentCourse.Start_Time.ToString("o"),  // ISO 8601
+                EndTime = currentCourse.End_Time.ToString("o"),      // ISO 8601
+                AttendanceStatus = attendanceStatus,
+                Message = null
             };
         }
     }

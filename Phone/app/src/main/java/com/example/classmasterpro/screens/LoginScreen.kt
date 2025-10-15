@@ -36,9 +36,11 @@ import com.example.classmasterpro.ui.theme.*
 import com.example.classmasterpro.utils.ApiHelper
 import com.example.classmasterpro.utils.AuthPreferences
 import com.example.classmasterpro.utils.LanguageHelper
+import com.example.classmasterpro.nfc.CardEmulationService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
+import android.util.Log
 
 @Composable
 fun LoginScreen(
@@ -90,6 +92,7 @@ fun LoginScreen(
             try {
                 // Call real authentication API
                 val loginResponse = ApiHelper.login(email, password)
+                Log.d("LoginScreen", "Login response received - userId: ${loginResponse.userId}, phoneId: ${loginResponse.phoneId}")
 
                 // Fetch user information to get role
                 val userInfo = ApiHelper.getUserInfo(loginResponse.userId, loginResponse.token)
@@ -108,8 +111,22 @@ fun LoginScreen(
                     userId = loginResponse.userId,
                     token = loginResponse.token,
                     roleId = userInfo.roleId,
-                    email = email
+                    email = email,
+                    name = userInfo.name,
+                    phoneId = loginResponse.phoneId
                 )
+
+                // Set NFC UID immediately after login
+                if (!loginResponse.phoneId.isNullOrEmpty()) {
+                    Log.d("LoginScreen", "Setting UID from phoneId: ${loginResponse.phoneId}")
+                    CardEmulationService.setUidFromPhoneId(loginResponse.phoneId)
+                    Log.d("LoginScreen", "UID after setting: ${CardEmulationService.getCustomUidString()}")
+                } else {
+                    Log.d("LoginScreen", "phoneId is null/empty, using userId fallback: ${loginResponse.userId}")
+                    // Fallback: use userId if phoneId is not provided by backend
+                    CardEmulationService.setUidFromStudentId(loginResponse.userId)
+                    Log.d("LoginScreen", "UID after setting from userId: ${CardEmulationService.getCustomUidString()}")
+                }
 
                 // Login successful - pass roleId to navigation
                 isLoading = false
@@ -394,39 +411,6 @@ fun LoginScreen(
                                 text = context.getString(R.string.sign_in_button),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Demo Credentials Hint
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = SkyBlue.copy(alpha = 0.3f)
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = context.getString(R.string.demo_credentials_title),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = SecondaryBlue
-                            )
-                            Text(
-                                text = context.getString(R.string.demo_email),
-                                fontSize = 11.sp,
-                                color = SecondaryBlue.copy(alpha = 0.8f)
-                            )
-                            Text(
-                                text = context.getString(R.string.demo_password),
-                                fontSize = 11.sp,
-                                color = SecondaryBlue.copy(alpha = 0.8f)
                             )
                         }
                     }

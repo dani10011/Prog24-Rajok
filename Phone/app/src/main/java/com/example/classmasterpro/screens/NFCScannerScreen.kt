@@ -1,6 +1,8 @@
 package com.example.classmasterpro.screens
 
 import android.nfc.NfcAdapter
+import android.nfc.cardemulation.CardEmulation
+import android.content.ComponentName
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +10,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -19,14 +22,22 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.example.classmasterpro.ui.theme.*
 import com.example.classmasterpro.utils.ApiHelper
+import com.example.classmasterpro.utils.AuthPreferences
+import com.example.classmasterpro.models.UserRole
+import com.example.classmasterpro.models.CurrentLectureStatusResponse
+import com.example.classmasterpro.nfc.CardEmulationService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.util.Log
 
 enum class NFCStatus {
     NOT_SUPPORTED,
@@ -43,10 +54,17 @@ fun NFCScannerScreen(
     isDarkMode: Boolean = false,
     onToggleDarkMode: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     var nfcStatus by remember { mutableStateOf(NFCStatus.DISABLED) }
-    var isLoading by remember { mutableStateOf(false) }
-    var apiResponse by remember { mutableStateOf("") }
+    var lectureStatus by remember { mutableStateOf<CurrentLectureStatusResponse?>(null) }
+    var isLoadingLectureStatus by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    // Get user info from preferences
+    val userName = AuthPreferences.getName(context) ?: "Student"
+    val roleId = AuthPreferences.getRoleId(context)
+    val userRole = UserRole.fromId(roleId)?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Student"
+    val userId = AuthPreferences.getUserId(context)
 
     // Easter egg corner tap detection
     var tapSequence by remember { mutableStateOf(listOf<String>()) }
@@ -58,6 +76,16 @@ fun NFCScannerScreen(
             nfcAdapter == null -> NFCStatus.NOT_SUPPORTED
             nfcAdapter.isEnabled -> NFCStatus.ENABLED
             else -> NFCStatus.DISABLED
+        }
+
+        // Set the NFC UID from the saved phoneId, or fallback to userId
+        val savedPhoneId = AuthPreferences.getPhoneId(context)
+        if (!savedPhoneId.isNullOrEmpty()) {
+            CardEmulationService.setUidFromPhoneId(savedPhoneId)
+        } else {
+            if (userId > 0) {
+                CardEmulationService.setUidFromStudentId(userId)
+            }
         }
     }
 
@@ -156,6 +184,48 @@ fun NFCScannerScreen(
                 }
             }
 
+            // User Info Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isDarkMode) Color(0xFF1A2332).copy(alpha = 0.9f) else Color.White.copy(alpha = 0.9f)
+                ),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = userName,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isDarkMode) SkyBlue else PrimaryBlue
+                        )
+                        Text(
+                            text = userRole,
+                            fontSize = 14.sp,
+                            color = if (isDarkMode) SkyBlue.copy(alpha = 0.7f) else SecondaryBlue
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = "User",
+                        tint = if (isDarkMode) LightBlue else PrimaryBlue,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Main NFC Icon and Status
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -241,28 +311,6 @@ fun NFCScannerScreen(
                         )
                     }
                 }
-
-                // API Response
-                if (apiResponse.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isDarkMode) Color(0xFF1A2332).copy(alpha = 0.8f) else Color.White.copy(alpha = 0.8f)
-                        )
-                    ) {
-                        Text(
-                            text = apiResponse,
-                            modifier = Modifier.padding(16.dp),
-                            fontSize = 14.sp,
-                            color = if (isDarkMode) SkyBlue else SecondaryBlue,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
             }
 
             // Action Buttons
@@ -280,7 +328,8 @@ fun NFCScannerScreen(
                             nfcAdapter.isEnabled -> NFCStatus.ENABLED
                             else -> NFCStatus.DISABLED
                         }
-                        onShowToast("NFC Status: ${nfcStatus.name}")
+
+                        onShowToast("NFC: ${nfcStatus.name}")
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -300,21 +349,38 @@ fun NFCScannerScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Test API Call Button
+                // Get Current Lecture Status Button
                 Button(
                     onClick = {
                         scope.launch {
-                            isLoading = true
-                            apiResponse = ""
+                            isLoadingLectureStatus = true
                             try {
-                                val response = ApiHelper.makeApiCall()
-                                apiResponse = "Success: $response"
-                                onShowToast("API call successful!")
+                                val token = AuthPreferences.getToken(context)
+                                if (token == null) {
+                                    onShowToast("Not logged in")
+                                    return@launch
+                                }
+
+                                val status = ApiHelper.getCurrentLectureStatus(userId, token)
+                                lectureStatus = status
+
+                                // Display a toast with the lecture status
+                                if (status.isInLecture) {
+                                    val message = buildString {
+                                        append("In Lecture")
+                                        status.courseName?.let { append(": $it") }
+                                        status.roomNumber?.let { append(" - Room $it") }
+                                        status.attendanceStatus?.let { append(" ($it)") }
+                                    }
+                                    onShowToast(message)
+                                } else {
+                                    onShowToast(status.message ?: "No active lecture")
+                                }
                             } catch (e: Exception) {
-                                apiResponse = "Error: ${e.message}"
-                                onShowToast("API call failed: ${e.message}")
+                                onShowToast("Error: ${e.message}")
+                                lectureStatus = null
                             } finally {
-                                isLoading = false
+                                isLoadingLectureStatus = false
                             }
                         }
                     },
@@ -326,34 +392,119 @@ fun NFCScannerScreen(
                     ),
                     shape = RoundedCornerShape(16.dp),
                     elevation = ButtonDefaults.buttonElevation(8.dp),
-                    enabled = !isLoading
+                    enabled = !isLoadingLectureStatus
                 ) {
-                    if (isLoading) {
+                    if (isLoadingLectureStatus) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
                             color = Color.White,
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text(
-                            text = "Test API Call",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Filled.School,
+                                contentDescription = "Lecture Status",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Check Lecture Status",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                // Display lecture status card if available
+                lectureStatus?.let { status ->
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (status.isInLecture) {
+                                if (isDarkMode) PrimaryBlue.copy(alpha = 0.3f) else LightBlue.copy(alpha = 0.3f)
+                            } else {
+                                if (isDarkMode) Color(0xFF1A2332).copy(alpha = 0.9f) else Color.White.copy(alpha = 0.9f)
+                            }
+                        ),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (status.isInLecture) "Active Lecture" else "No Active Lecture",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDarkMode) SkyBlue else PrimaryBlue
+                                )
+                                Icon(
+                                    imageVector = if (status.isInLecture) Icons.Filled.CheckCircle else Icons.Filled.Info,
+                                    contentDescription = null,
+                                    tint = if (status.isInLecture) PrimaryBlue else Color.Gray,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
 
-                // Open NFC Settings hint
-                if (nfcStatus == NFCStatus.DISABLED) {
-                    Text(
-                        text = "Please enable NFC in your device settings",
-                        fontSize = 14.sp,
-                        color = Accent,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium
-                    )
+                            if (status.isInLecture) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                status.courseName?.let {
+                                    Text(
+                                        text = "Course: $it",
+                                        fontSize = 12.sp,
+                                        color = if (isDarkMode) SkyBlue.copy(alpha = 0.9f) else SecondaryBlue
+                                    )
+                                }
+                                status.instructorName?.let {
+                                    Text(
+                                        text = "Instructor: $it",
+                                        fontSize = 12.sp,
+                                        color = if (isDarkMode) SkyBlue.copy(alpha = 0.9f) else SecondaryBlue
+                                    )
+                                }
+                                status.roomNumber?.let { room ->
+                                    Text(
+                                        text = "Room: $room${status.buildingName?.let { " ($it)" } ?: ""}",
+                                        fontSize = 12.sp,
+                                        color = if (isDarkMode) SkyBlue.copy(alpha = 0.9f) else SecondaryBlue
+                                    )
+                                }
+                                status.attendanceStatus?.let {
+                                    Text(
+                                        text = "Status: $it",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = when (it.lowercase()) {
+                                            "present" -> if (isDarkMode) LightBlue else PrimaryBlue
+                                            "absent" -> Accent
+                                            "late" -> if (isDarkMode) SkyBlue else SecondaryBlue
+                                            else -> if (isDarkMode) SkyBlue else SecondaryBlue
+                                        }
+                                    )
+                                }
+                            } else {
+                                status.message?.let {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = it,
+                                        fontSize = 12.sp,
+                                        color = if (isDarkMode) SkyBlue.copy(alpha = 0.7f) else SecondaryBlue.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

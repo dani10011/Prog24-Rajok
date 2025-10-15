@@ -12,6 +12,8 @@ import com.example.classmasterpro.screens.LoginScreen
 import com.example.classmasterpro.screens.NFCScannerScreen
 import com.example.classmasterpro.screens.BlackjackScreen
 import com.example.classmasterpro.utils.AuthPreferences
+import com.example.classmasterpro.nfc.CardEmulationService
+import android.util.Log
 
 /**
  * Sealed class representing app navigation routes
@@ -41,6 +43,28 @@ fun AppNavigation(
     // Check if user is already logged in and determine start destination based on role
     val isLoggedIn = AuthPreferences.isLoggedIn(context)
     val roleId = AuthPreferences.getRoleId(context)
+
+    // Initialize NFC UID if user is already logged in
+    LaunchedEffect(isLoggedIn) {
+        Log.d("AppNavigation", "LaunchedEffect - isLoggedIn: $isLoggedIn")
+        if (isLoggedIn) {
+            val savedPhoneId = AuthPreferences.getPhoneId(context)
+            Log.d("AppNavigation", "Auto-login detected - savedPhoneId: $savedPhoneId")
+            if (!savedPhoneId.isNullOrEmpty()) {
+                Log.d("AppNavigation", "Setting UID from saved phoneId: $savedPhoneId")
+                CardEmulationService.setUidFromPhoneId(savedPhoneId)
+                Log.d("AppNavigation", "UID after setting: ${CardEmulationService.getCustomUidString()}")
+            } else {
+                // Fallback: use userId if phoneId is not available
+                val userId = AuthPreferences.getUserId(context)
+                Log.d("AppNavigation", "phoneId not found, using userId fallback: $userId")
+                if (userId > 0) {
+                    CardEmulationService.setUidFromStudentId(userId)
+                    Log.d("AppNavigation", "UID after setting from userId: ${CardEmulationService.getCustomUidString()}")
+                }
+            }
+        }
+    }
 
     val startDestination = if (isLoggedIn) {
         when (roleId) {

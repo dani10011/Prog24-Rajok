@@ -49,4 +49,8 @@
     <!-- Languages -->
     <string name="language_english">English</string>
     <string name="language_hungarian">Magyar</string>
+
+    <!-- NFC Host Card Emulation -->
+    <string name="hce_service_description">ClassMaster Pro NFC Card Emulation</string>
+    <string name="hce_aid_group_description">ClassMaster Pro Student ID</string>
 </resources>

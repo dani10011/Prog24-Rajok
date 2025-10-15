@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gradlew.bat build:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(./gradlew.bat build:*)",
+      "Bash(node:*)",
+      "WebFetch(domain:09cc208360a9.ngrok-free.app)",
+      "Bash(if not exist:*)",
+      "Bash(./gradlew.bat:*)",
+      "Read(//c/Users/Bendi/Desktop/Prog24/Prog24-Rajok/Backend/Prog24.Services/Model/Dto/**)",
+      "WebFetch(domain:72ee88981b0e.ngrok-free.app)",
+      "Read(//c/Users/Bendi/Desktop/Prog24/Prog24-Rajok/Backend/Prog24.WebAPI/Controllers/**)",
+      "Read(//c/Users/Bendi/Desktop/Prog24/Prog24-Rajok/RaspberryScanner/**)",
+      "Read(//c/Users/Bendi/Desktop/Prog24/Prog24-Rajok/Backend/**)",
+      "Bash(dotnet build)",
+      "Bash(dotnet build:*)",
+      "Bash(tasklist)",
+      "Bash(findstr:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

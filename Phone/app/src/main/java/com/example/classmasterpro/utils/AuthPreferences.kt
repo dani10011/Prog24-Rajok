@@ -13,6 +13,8 @@ object AuthPreferences {
     private const val KEY_TOKEN = "token"
     private const val KEY_EMAIL = "email"
     private const val KEY_ROLE_ID = "role_id"
+    private const val KEY_NAME = "name"
+    private const val KEY_PHONE_ID = "phone_id"
 
     private fun getPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -25,13 +27,17 @@ object AuthPreferences {
      * @param token JWT Bearer token
      * @param roleId User's role (1=Admin, 2=Instructor, 3=Student)
      * @param email User's email address (optional)
+     * @param name User's full name (optional)
+     * @param phoneId Phone's unique NFC identifier (optional)
      */
-    fun saveAuthData(context: Context, userId: Int, token: String, roleId: Int, email: String? = null) {
+    fun saveAuthData(context: Context, userId: Int, token: String, roleId: Int, email: String? = null, name: String? = null, phoneId: String? = null) {
         getPreferences(context).edit().apply {
             putInt(KEY_USER_ID, userId)
             putString(KEY_TOKEN, token)
             putInt(KEY_ROLE_ID, roleId)
             email?.let { putString(KEY_EMAIL, it) }
+            name?.let { putString(KEY_NAME, it) }
+            phoneId?.let { putString(KEY_PHONE_ID, it) }
             apply()
         }
     }
@@ -70,6 +76,24 @@ object AuthPreferences {
      */
     fun getRoleId(context: Context): Int {
         return getPreferences(context).getInt(KEY_ROLE_ID, -1)
+    }
+
+    /**
+     * Get stored user name
+     * @param context Application context
+     * @return Stored user name or null
+     */
+    fun getName(context: Context): String? {
+        return getPreferences(context).getString(KEY_NAME, null)
+    }
+
+    /**
+     * Get stored phone ID (NFC UID)
+     * @param context Application context
+     * @return Stored phone ID or null
+     */
+    fun getPhoneId(context: Context): String? {
+        return getPreferences(context).getString(KEY_PHONE_ID, null)
     }
 
     /**

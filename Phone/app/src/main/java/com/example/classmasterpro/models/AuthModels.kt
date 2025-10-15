@@ -19,15 +19,18 @@ data class LoginRequest(
  * Expected response format:
  * {
  *   "userId": 2,
- *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+ *   "phoneId": "04:12:34:56:78:9A:BC"
  * }
  *
  * @param userId User's unique identifier
  * @param token JWT Bearer token for authenticated requests
+ * @param phoneId Phone's unique NFC identifier (7-byte UID in hex format, optional)
  */
 data class LoginResponse(
     val userId: Int,
-    val token: String
+    val token: String,
+    val phoneId: String? = null
 )
 
 /**
